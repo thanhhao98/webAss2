@@ -1,4 +1,4 @@
-#ASS2 WEB
+# ASS2 WEB
 ## Command of docker
 - docker-compose up: run and show logs
 - docker-compose up --build: rebuild image from current folder
