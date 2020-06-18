@@ -5,3 +5,4 @@
 - docker-compose up -d: run in background
 - docker ps: show all container 
 - docker logs -f $dockerId: show logs realtime of container
+- docker stop: stop server which is running in background
