@@ -12,6 +12,26 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
+<?php
+    include ("../models/db.php");
+    $db = New DbBase();
+    $Dishes = new Dishes($db);
+    $total = $Dishes->getTotalDishCount();
+    (isset($_POST["num_per_page"])) ? $num_per_page = $_POST["num_per_page"] : $num_per_page=25;
+    $total_pages = ceil($total / $num_per_page);
+    // Check that the page number is set.
+    if(!isset($_GET['page'])){
+        $_GET['page'] = 1;
+    }else{
+        // Convert the page number to an integer
+        $_GET['page'] = (int)$_GET['page'];
+    }
+    // Calculate the starting number
+    $start_idx = ($_GET['page'] - 1) * $num_per_page;
+    // SQL Query
+    $query = 'SELECT * FROM `Dishes` LIMIT ' . $start_idx . ', ' . $num_per_page;
+    $dishes = $db->query($query);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,6 +50,7 @@ Coded by www.creative-tim.com
   <!-- CSS Files -->
   <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
+  <link href="assets/css/mystyle.css" rel="stylesheet" />
   <!-- CSS Just for demo purpose, don't include it in your project 
   <link href="assets/demo/demo.css" rel="stylesheet" />-->
 </head>
@@ -149,124 +170,77 @@ Coded by www.creative-tim.com
               </div>
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table">
+                  <table class="table" id="user_table">
                     <thead class=" text-primary">
+                      <th>
+                        ID
+                      </th>
                       <th>
                         Name
                       </th>
                       <th>
-                        Country
+                        Price
                       </th>
                       <th>
-                        City
+                        Description
+                      </th>
+                      <th>
+                        Status
+                      </th>
+                      <th>
+                        Image
                       </th>
                       <th class="text-right">
-                        Salary
+                        Action
                       </th>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>
-                          Dakota Rice
-                        </td>
-                        <td>
-                          Niger
-                        </td>
-                        <td>
-                          Oud-Turnhout
-                        </td>
-                        <td class="text-right">
-                          $36,738
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Minerva Hooper
-                        </td>
-                        <td>
-                          Curaçao
-                        </td>
-                        <td>
-                          Sinaai-Waas
-                        </td>
-                        <td class="text-right">
-                          $23,789
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Sage Rodriguez
-                        </td>
-                        <td>
-                          Netherlands
-                        </td>
-                        <td>
-                          Baileux
-                        </td>
-                        <td class="text-right">
-                          $56,142
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Philip Chaney
-                        </td>
-                        <td>
-                          Korea, South
-                        </td>
-                        <td>
-                          Overland Park
-                        </td>
-                        <td class="text-right">
-                          $38,735
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Doris Greene
-                        </td>
-                        <td>
-                          Malawi
-                        </td>
-                        <td>
-                          Feldkirchen in Kärnten
-                        </td>
-                        <td class="text-right">
-                          $63,542
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Mason Porter
-                        </td>
-                        <td>
-                          Chile
-                        </td>
-                        <td>
-                          Gloucester
-                        </td>
-                        <td class="text-right">
-                          $78,615
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Jon Porter
-                        </td>
-                        <td>
-                          Portugal
-                        </td>
-                        <td>
-                          Gloucester
-                        </td>
-                        <td class="text-right">
-                          $98,615
-                        </td>
-                      </tr>
+                      <?php
+                          while ($dish = $dishes->fetch_assoc()) {
+                              echo '<tr>';
+                              echo '<td>'.$dish['id'].'</td>';
+                              echo '<td>'.$dish['name'].'</td>';
+                              echo '<td>'.$dish['price'].'</td>';
+                              echo '<td>'.$dish['descriptions'].'</td>';
+                              echo '<td>'.$dish['status'].'</td>';
+                              echo '<td>'.$dish['image'].'</td>';
+                              echo '</tr>';
+                          }
+                      ?>
                     </tbody>
                   </table>
                 </div>
               </div>
+            </div>
+            <div class="pagination">
+              <?php
+                  $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
+                  echo '<a href="?page=' . $prev_page . '">&laquo;</a>';
+                    foreach(range(1, $total_pages) as $page){
+                        // Check if we're on the current page in the loop
+                        if($page == $_GET['page']){
+                            echo '<a class="active">' . $page . '</a>';
+                        }else if($page == 1 || $page == $totalPages || ($page >= $_GET['page'] - 2 && $page <= $_GET['page'] + 2)){
+                            echo '<a href="?page=' . $page . '">' . $page . '</a>';
+                        }
+                    }
+                  $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
+                  echo '<a href="?page=' . $next_page . '">&raquo;</a>';
+              ?>
+            </div>
+            <div class="text-right">
+                <form method="post">
+                  Show
+                  <select name="num_per_page">
+                    <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5</option>
+                    <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10</option>
+                    <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25</option>
+                    <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50</option>
+                    <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100</option>
+                  </select>
+                  entries
+                  <input type="submit" name="submit"/>
+                </form>
             </div>
           </div>
         </div>
@@ -302,13 +276,13 @@ Coded by www.creative-tim.com
   <script src="assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
   <!--  Google Maps Plugin    
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>-->
-  <!-- Chart JS -->
-  <script src="assets/js/plugins/chartjs.min.js"></script>
+  <!-- Chart JS 
+  <script src="assets/js/plugins/chartjs.min.js"></script>-->
   <!--  Notifications Plugin    -->
   <script src="assets/js/plugins/bootstrap-notify.js"></script>
-  <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="assets/js/paper-dashboard.min.js?v=2.0.1" type="text/javascript"></script><!-- Paper Dashboard DEMO methods, don't include it in your project! -->
-  <script src="assets/demo/demo.js"></script>
+  <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc 
+  <script src="assets/js/paper-dashboard.min.js?v=2.0.1" type="text/javascript"></script>
+  <script src="assets/demo/demo.js"></script>-->
 </body>
 
 </html>

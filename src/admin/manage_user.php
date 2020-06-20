@@ -17,8 +17,7 @@ Coded by www.creative-tim.com
     $db = New DbBase();
     $Users = new Users($db);
     $total = $Users->getTotalUserCount();
-    //$num_per_page = 3;
-    (isset($_POST["num_per_page"])) ? $num_per_page = $_POST["num_per_page"] : $num_per_page=5;
+    (isset($_POST["num_per_page"])) ? $num_per_page = $_POST["num_per_page"] : $num_per_page=25;
     $total_pages = ceil($total / $num_per_page);
     // Check that the page number is set.
     if(!isset($_GET['page'])){
@@ -225,20 +224,20 @@ Coded by www.creative-tim.com
                   echo '<a href="?page=' . $next_page . '">&raquo;</a>';
               ?>
             </div>
-<!--
             <div class="text-right">
                 <form method="post">
+                  Show
                   <select name="num_per_page">
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
+                    <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5</option>
+                    <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10</option>
+                    <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25</option>
+                    <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50</option>
+                    <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100</option>
                   </select>
-                    <input type="submit" name="submit"/>
+                  entries
+                  <input type="submit" name="submit"/>
                 </form>
             </div>
--->
           </div>
         </div>
       </div>

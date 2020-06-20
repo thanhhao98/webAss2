@@ -77,6 +77,12 @@ class Dishes{
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);	
 		return $this->db->query($sql);
 	}
+        public function getTotalDishCount(){
+            $query = "SELECT COUNT(*) as `total` FROM `Dishes`"; 
+            $result = $this->db->query($query);
+            $total = $result->fetch_assoc()["total"];
+            return $total;
+        }
 }
 
 class Comments{
