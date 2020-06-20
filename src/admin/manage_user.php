@@ -12,6 +12,38 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
+<?php
+    $host = 'sqlService';
+    $user = 'haophan';
+    $pass = '977463';
+    $db_name = 'Ass2';
+    $conn = new mysqli($host, $user, $pass, $db_name);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    } 
+
+    $query = "SELECT COUNT(*) as `total` FROM `Users`"; 
+    $result = $conn->query($query);
+    $total = $result->fetch_assoc()["total"];
+
+    $num_per_page = 3;
+    (isset($_POST["num_per_page"])) ? $num_per_page = $_POST["num_per_page"] : $num_per_page=3;
+    $total_pages = ceil($total / $num_per_page);
+
+    // Check that the page number is set.
+    if(!isset($_GET['page'])){
+        $_GET['page'] = 1;
+    }else{
+        // Convert the page number to an integer
+        $_GET['page'] = (int)$_GET['page'];
+    }
+    // Calculate the starting number
+    $start_idx = ($_GET['page'] - 1) * $num_per_page;
+    // SQL Query
+    $query = 'SELECT * FROM `Users` LIMIT ' . $start_idx . ', ' . $num_per_page;
+    //echo $query;
+    $users = $conn->query($query);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,8 +62,9 @@ Coded by www.creative-tim.com
   <!-- CSS Files -->
   <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
-  <!-- CSS Just for demo purpose, don't include it in your project -->
-  <link href="assets/demo/demo.css" rel="stylesheet" />
+  <link href="assets/css/mystyle.css" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project 
+  <link href="assets/demo/demo.css" rel="stylesheet" />-->
 </head>
 
 <body class="">
@@ -149,125 +182,74 @@ Coded by www.creative-tim.com
               </div>
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table">
+                  <table class="table" id="user_table">
                     <thead class=" text-primary">
+                      <th>
+                        ID
+                      </th>
                       <th>
                         Name
                       </th>
                       <th>
-                        Country
+                        Email
                       </th>
                       <th>
-                        City
+                        Phone
+                      </th>
+                      <th>
+                        isAdmin
                       </th>
                       <th class="text-right">
-                        Salary
+                        Action
                       </th>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>
-                          Dakota Rice
-                        </td>
-                        <td>
-                          Niger
-                        </td>
-                        <td>
-                          Oud-Turnhout
-                        </td>
-                        <td class="text-right">
-                          $36,738
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Minerva Hooper
-                        </td>
-                        <td>
-                          Curaçao
-                        </td>
-                        <td>
-                          Sinaai-Waas
-                        </td>
-                        <td class="text-right">
-                          $23,789
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Sage Rodriguez
-                        </td>
-                        <td>
-                          Netherlands
-                        </td>
-                        <td>
-                          Baileux
-                        </td>
-                        <td class="text-right">
-                          $56,142
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Philip Chaney
-                        </td>
-                        <td>
-                          Korea, South
-                        </td>
-                        <td>
-                          Overland Park
-                        </td>
-                        <td class="text-right">
-                          $38,735
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Doris Greene
-                        </td>
-                        <td>
-                          Malawi
-                        </td>
-                        <td>
-                          Feldkirchen in Kärnten
-                        </td>
-                        <td class="text-right">
-                          $63,542
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Mason Porter
-                        </td>
-                        <td>
-                          Chile
-                        </td>
-                        <td>
-                          Gloucester
-                        </td>
-                        <td class="text-right">
-                          $78,615
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Jon Porter
-                        </td>
-                        <td>
-                          Portugal
-                        </td>
-                        <td>
-                          Gloucester
-                        </td>
-                        <td class="text-right">
-                          $98,615
-                        </td>
-                      </tr>
+                      <?php
+                          while ($user = $users->fetch_assoc()) {
+                              echo '<tr>';
+                              echo '<td>'.$user['id'].'</td>';
+                              echo '<td>'.$user['name'].'</td>';
+                              echo '<td>'.$user['email'].'</td>';
+                              echo '<td>'.$user['phone'].'</td>';
+                              echo '<td>'.$user['isAdmin'].'</td>';
+                              echo '</tr>';
+                          }
+                      ?>
                     </tbody>
                   </table>
                 </div>
               </div>
             </div>
+            <div class="pagination">
+              <?php
+                  $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
+                  echo '<a href="?page=' . $prev_page . '">&laquo;</a>';
+                    foreach(range(1, $total_pages) as $page){
+                        // Check if we're on the current page in the loop
+                        if($page == $_GET['page']){
+                            echo '<a class="active">' . $page . '</a>';
+                        }else if($page == 1 || $page == $totalPages || ($page >= $_GET['page'] - 2 && $page <= $_GET['page'] + 2)){
+                            echo '<a href="?page=' . $page . '">' . $page . '</a>';
+                        }
+                    }
+                  $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
+                  echo '<a href="?page=' . $next_page . '">&raquo;</a>';
+              ?>
+            </div>
+<!--
+            <div class="text-right">
+                <form method="post">
+                  <select name="num_per_page">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                    <input type="submit" name="submit"/>
+                </form>
+            </div>
+-->
           </div>
         </div>
       </div>
@@ -302,13 +284,13 @@ Coded by www.creative-tim.com
   <script src="assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
   <!--  Google Maps Plugin    
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>-->
-  <!-- Chart JS -->
-  <script src="assets/js/plugins/chartjs.min.js"></script>
+  <!-- Chart JS 
+  <script src="assets/js/plugins/chartjs.min.js"></script>-->
   <!--  Notifications Plugin    -->
   <script src="assets/js/plugins/bootstrap-notify.js"></script>
-  <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="assets/js/paper-dashboard.min.js?v=2.0.1" type="text/javascript"></script><!-- Paper Dashboard DEMO methods, don't include it in your project! -->
-  <script src="assets/demo/demo.js"></script>
+  <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc 
+  <script src="assets/js/paper-dashboard.min.js?v=2.0.1" type="text/javascript"></script>
+  <script src="assets/demo/demo.js"></script>-->
 </body>
 
 </html>
