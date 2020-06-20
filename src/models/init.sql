@@ -54,6 +54,7 @@ CREATE TABLE `Tables` (
 
 CREATE TABLE `Infos` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
+  `name` varchar(255),
   `content` varchar(255),
   `status` boolean,
   `lastUpdatedByAdmin` int

@@ -4,4 +4,4 @@ RUN docker-php-ext-install mysqli pdo_mysql
 RUN mkdir /app
 RUN mkdir /app/src
 COPY ./src/ /app/src
-RUN cp -r /app/src/www/* /var/www/html/.
+RUN cp -r /app/src/* /var/www/html/.
