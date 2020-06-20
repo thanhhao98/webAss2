@@ -13,22 +13,16 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
 <?php
-    $host = 'sqlService';
-    $user = 'haophan';
-    $pass = '977463';
-    $db_name = 'Ass2';
-    $conn = new mysqli($host, $user, $pass, $db_name);
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    } 
-    $query = "SELECT * FROM `Infos` WHERE 1"; 
-    $result = $conn->query($query);
-    while ($row = $result->fetch_assoc()) {
-        if ($row["name"] == 'contact'){
-            $contact_content = $row["content"]; 
+    include ("../models/db.php");
+    $db = New DbBase();
+    $Infos = new Infos($db);
+    $infos = $Infos->getInfos();
+    while ($info = $infos->fetch_assoc()) {
+        if ($info["name"] == 'contact'){
+            $contact_content = $info["content"]; 
         }
         else{
-            $about_content = $row["content"];
+            $about_content = $info["content"];
         }
     }
 ?>
@@ -278,8 +272,7 @@ Coded by www.creative-tim.com
                 <?php
                     if (isset($_POST['update_contact'])){
                         $contact_content = $_POST["current_contact"];
-                        $query = "UPDATE `Infos` SET `content`= '$contact_content' WHERE `name` = 'contact'";
-                        $result = $conn->query($query);
+                        $Infos->updateInfo("contact", $contact_content);
                     }
                 ?>
                 <div class="update ml-auto mr-auto">
@@ -294,8 +287,7 @@ Coded by www.creative-tim.com
                 <?php
                     if (isset($_POST['update_about'])){
                         $about_content = $_POST["current_about"];
-                        $query = "UPDATE `Infos` SET `content`= '$about_content' WHERE `name` = 'about'";
-                        $result = $conn->query($query);
+                        $Infos->updateInfo("about", $about_content);
                     }
                 ?>
                 <div class="update ml-auto mr-auto">

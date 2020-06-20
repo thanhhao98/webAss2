@@ -30,8 +30,14 @@ class Users {
 	}
 	public function createUser($name, $email, $phone, $password, $isAdmin=false){
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $email, $phone, $password, $isAdmin);	
-		return $this->db.query($sql);
+		return $this->db->query($sql);
 	}
+        public function getTotalUserCount(){
+            $query = "SELECT COUNT(*) as `total` FROM `Users`"; 
+            $result = $this->db->query($query);
+            $total = $result->fetch_assoc()["total"];
+            return $total;
+        }
 }
 
 class Reservations {
@@ -43,7 +49,7 @@ class Reservations {
 	}
 	public function createReservation($user, $numPersons, $status, $createTime, $lastUpdatedByAdmin){
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $user, $numPersons, $status, $createTime, $lastUpdatedByAdmin);	
-		return $this->db.query($sql);
+		return $this->db->query($sql);
 	}
 }
 
@@ -54,9 +60,9 @@ class ReservationItem {
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	public function createReservation($reservation, $dish, $quantity){
+	public function createReservationItem($reservation, $dish, $quantity){
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $reservation, $dish, $quantity);	
-		return $this->db.query($sql);
+		return $this->db->query($sql);
 	}
 }
 
@@ -67,9 +73,9 @@ class Dishes{
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	public function createReservation($name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin){
+	public function createDish($name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin){
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);	
-		return $this->db.query($sql);
+		return $this->db->query($sql);
 	}
 }
 
@@ -80,22 +86,32 @@ class Comments{
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	public function createReservation($user, $content, $createTime, $visibility, $lastUpdatedByAdmin){
+	public function createComment($user, $content, $createTime, $visibility, $lastUpdatedByAdmin){
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $user, $content, $createTime, $visibility, $lastUpdatedByAdmin);	
-		return $this->db.query($sql);
+		return $this->db->query($sql);
 	}
 }
 
-class Comments{
+class Infos{
 	const NAME_TABLE = "Infos";
 	private $db;
 	private $insertFormat = "INSERT INTO %s (name, content, status, lastUpdatedByAdmin) VALUES (%s, %s, %d, %d)";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	public function createReservation($name, $content, $status, $lastUpdatedByAdmin){
+	public function createInfo($name, $content, $status, $lastUpdatedByAdmin){
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $content, $status, $lastUpdatedByAdmin);	
-		return $this->db.query($sql);
+		return $this->db->query($sql);
 	}
+        public function getInfos(){
+            $query = "SELECT * FROM `Infos` WHERE 1"; 
+            $result = $this->db->query($query);
+            return $result;
+        }
+        public function updateInfo($field, $content){
+            $query = "UPDATE `Infos` SET `content`= '$content' WHERE `name` = '$field'";
+            $result = $this->db->query($query);
+            return $result;
+        }
 }
 ?>

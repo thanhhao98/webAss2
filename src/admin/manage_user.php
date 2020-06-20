@@ -13,23 +13,13 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
 <?php
-    $host = 'sqlService';
-    $user = 'haophan';
-    $pass = '977463';
-    $db_name = 'Ass2';
-    $conn = new mysqli($host, $user, $pass, $db_name);
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    } 
-
-    $query = "SELECT COUNT(*) as `total` FROM `Users`"; 
-    $result = $conn->query($query);
-    $total = $result->fetch_assoc()["total"];
-
-    $num_per_page = 3;
-    (isset($_POST["num_per_page"])) ? $num_per_page = $_POST["num_per_page"] : $num_per_page=3;
+    include ("../models/db.php");
+    $db = New DbBase();
+    $Users = new Users($db);
+    $total = $Users->getTotalUserCount();
+    //$num_per_page = 3;
+    (isset($_POST["num_per_page"])) ? $num_per_page = $_POST["num_per_page"] : $num_per_page=5;
     $total_pages = ceil($total / $num_per_page);
-
     // Check that the page number is set.
     if(!isset($_GET['page'])){
         $_GET['page'] = 1;
@@ -41,8 +31,7 @@ Coded by www.creative-tim.com
     $start_idx = ($_GET['page'] - 1) * $num_per_page;
     // SQL Query
     $query = 'SELECT * FROM `Users` LIMIT ' . $start_idx . ', ' . $num_per_page;
-    //echo $query;
-    $users = $conn->query($query);
+    $users = $db->query($query);
 ?>
 <!DOCTYPE html>
 <html lang="en">
