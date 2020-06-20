@@ -12,6 +12,26 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
+<?php
+    $host = 'sqlService';
+    $user = 'haophan';
+    $pass = '977463';
+    $db_name = 'Ass2';
+    $conn = new mysqli($host, $user, $pass, $db_name);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    } 
+    $query = "SELECT * FROM `Infos` WHERE 1"; 
+    $result = $conn->query($query);
+    while ($row = $result->fetch_assoc()) {
+        if ($row["name"] == 'contact'){
+            $contact_content = $row["content"]; 
+        }
+        else{
+            $about_content = $row["content"];
+        }
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -253,24 +273,37 @@ Coded by www.creative-tim.com
                 <h5 class="card-title">Site Info</h5>
                 <p class="card-category">Edit website information</p>
               </div>
-              <!--
-              <div class="card-body ">
-                <canvas id=chartHours width="400" height="100"></canvas>
-              </div>
-              -->
               <div class="form-group">
                 <label>Contact</label>
+                <?php
+                    if (isset($_POST['update_contact'])){
+                        $contact_content = $_POST["current_contact"];
+                        $query = "UPDATE `Infos` SET `content`= '$contact_content' WHERE `name` = 'contact'";
+                        $result = $conn->query($query);
+                    }
+                ?>
                 <div class="update ml-auto mr-auto">
-                  <button type="submit" class="btn btn-primary btn-round">Update Contact</button>
+                    <form method="post">
+                        <input type="submit" class="btn btn-primary btn-round" name="update_contact" value="Update Contact"/>
+                        <textarea class="form-control textarea" name="current_contact"><?php echo $contact_content;?></textarea>
+                    </form>
                 </div>
-                <textarea class="form-control textarea">Oh so, your weak rhyme You doubt I'll bother, reading into it</textarea>
               </div>
               <div class="form-group">
                 <label>About</label>
+                <?php
+                    if (isset($_POST['update_about'])){
+                        $about_content = $_POST["current_about"];
+                        $query = "UPDATE `Infos` SET `content`= '$about_content' WHERE `name` = 'about'";
+                        $result = $conn->query($query);
+                    }
+                ?>
                 <div class="update ml-auto mr-auto">
-                  <button type="submit" class="btn btn-primary btn-round">Update About</button>
+                    <form method="post">
+                        <input type="submit" class="btn btn-primary btn-round" name="update_about" value="Update About"/>
+                        <textarea class="form-control textarea" name="current_about"><?php echo $about_content;?></textarea>
+                    </form>
                 </div>
-                <textarea class="form-control textarea">Oh so, your weak rhyme You doubt I'll bother, reading into it</textarea>
               </div>
               <div class="card-footer ">
                 <hr>
