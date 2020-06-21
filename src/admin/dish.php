@@ -46,6 +46,7 @@ Coded by www.creative-tim.com
   <!-- CSS Files -->
   <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
+  <link href="assets/css/mystyle.css" rel="stylesheet" />
 </head>
 
 <body class="">
@@ -158,8 +159,12 @@ Coded by www.creative-tim.com
           <div class="col-md-4" style="<?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
             <div class="card card-user">
               <div class="image">
-                <img src="<?php echo '../' . $dishimage; ?>" alt="...">
+                <input class="img-dish" id="btnfile" type="image" src="<?php echo '../' . $dishimage; ?>" alt="Click to upload"/>
+                <div style="display: none;">
+                    <input type="file" id="uploadfile" />
+                </div>
               </div>
+
               <div class="card-footer">
                 <hr>
                 <div class="button-container">
@@ -208,6 +213,9 @@ Coded by www.creative-tim.com
                         $dishname = $dishprice = $dishdesc = $dishstatus = "";
                         if (!isset($dishimage)){
                             $dishimage = "";
+                        }
+                        else if (isset($_GET['imgName'])){
+                            $dishimage = "images/" . $_GET['imgName'];
                         }
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
                           $dishname = test_input($_POST["name"]);
@@ -319,6 +327,18 @@ Coded by www.creative-tim.com
   <script src="assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="assets/js/paper-dashboard.min.js?v=2.0.1" type="text/javascript"></script><!-- Paper Dashboard DEMO methods, don't include it in your project! -->
+  <script>
+    $("#btnfile").click(function () {
+        $("#uploadfile").click();
+    });
+    $("#uploadfile").change(function () {
+        var file = $(this).val().replace(/C:\\fakepath\\/ig,'');
+        var current = window.location.href;
+        //console.log(file);
+        //console.log(current);
+        window.location.href = current + "&imgName=" + file;
+    });
+  </script>
 </body>
 
 </html>

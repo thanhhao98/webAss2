@@ -264,11 +264,11 @@ Coded by www.creative-tim.com
           <div class="col-md-12">
             <div class="card ">
               <div class="card-header ">
-                <h5 class="card-title">Site Info</h5>
+                <h3 class="card-title">Site Info</h5>
                 <p class="card-category">Edit website information</p>
               </div>
-              <div class="form-group">
-                <label>Contact</label>
+              <div class="form-group" style="padding: 0px 15px;">
+                <h4 class="card-title"> Contact</h4>
                 <?php
                     if (isset($_POST['update_contact'])){
                         $contact_content = $_POST["current_contact"];
@@ -277,23 +277,24 @@ Coded by www.creative-tim.com
                 ?>
                 <div class="update ml-auto mr-auto">
                     <form method="post">
-                        <input type="submit" class="btn btn-primary btn-round" name="update_contact" value="Update Contact"/>
                         <textarea class="form-control textarea" name="current_contact"><?php echo $contact_content;?></textarea>
+                        <input type="submit" class="btn btn-primary btn-round" name="update_contact" value="Update Contact"/>
                     </form>
                 </div>
               </div>
-              <div class="form-group">
-                <label>About</label>
+              <div class="form-group" style="padding: 0px 15px;">
+                <h4 class="card-title"> About</h4>
                 <?php
                     if (isset($_POST['update_about'])){
                         $about_content = $_POST["current_about"];
                         $Infos->updateInfo("about", $about_content);
+
                     }
                 ?>
                 <div class="update ml-auto mr-auto">
                     <form method="post">
-                        <input type="submit" class="btn btn-primary btn-round" name="update_about" value="Update About"/>
                         <textarea class="form-control textarea" name="current_about"><?php echo $about_content;?></textarea>
+                        <input type="submit" class="btn btn-primary btn-round" name="update_about" value="Update About"/>
                     </form>
                 </div>
               </div>
