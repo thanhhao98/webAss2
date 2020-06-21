@@ -99,6 +99,22 @@ class Dishes{
             $total = $result->fetch_assoc()["total"];
             return $total;
         }
+        public function getDishById($id){
+            $query = "SELECT * FROM `Dishes` WHERE `id` = '$id'";
+            $result = $this->db->query($query);
+            $dish = $result->fetch_assoc();
+            return $dish;
+        }
+        public function updateDishById($id, $name, $price, $description, $status, $image){
+            $query = "UPDATE `Dishes` SET `name`= '$name', `price`= '$price', `descriptions`= '$description', `status`= '$status', `image`= '$image' WHERE `id` = '$id'";
+            $result = $this->db->query($query);
+            return $result;
+        }
+        public function deleteDishById($id){
+            $query = "DELETE FROM `Dishes` WHERE id='$id'";
+            $result = $this->db->query($query);
+            return $result;
+        }
 }
 
 class Comments{
