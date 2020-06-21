@@ -28,9 +28,11 @@ class Users {
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	public function createUser($name, $email, $phone, $password, $isAdmin=false){
-		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $email, $phone, $password, $isAdmin);	
-		return $this->db->query($sql);
+	public function createUser($name, $email, $phone, $password, $isAdmin=0){
+            //$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $email, $phone, $password, $isAdmin);	
+            //return $this->db->query($sql);
+            $query = "INSERT INTO Users (name, email, phone, password, isAdmin) VALUES ('$name', '$email', '$phone', '$password', '$isAdmin')";
+            return $this->db->query($query);
 	}
         public function getTotalUserCount(){
             $query = "SELECT COUNT(*) as `total` FROM `Users`"; 
@@ -89,9 +91,11 @@ class Dishes{
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	public function createDish($name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin){
-		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);	
-		return $this->db->query($sql);
+	public function createDish($name, $price, $descriptions, $status, $image, $lastUpdatedByAdmin=1){
+            //$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);	
+            //return $this->db->query($sql);
+            $query = "INSERT INTO Dishes (name, price, descriptions, status, image) VALUES ('$name', '$price', '$descriptions', '$status', '$image')";
+            return $this->db->query($query);
 	}
         public function getTotalDishCount(){
             $query = "SELECT COUNT(*) as `total` FROM `Dishes`"; 

@@ -17,13 +17,18 @@ Coded by www.creative-tim.com
     include "utils.php";
     $db = new DbBase();
     $Users = new Users($db);
-    $userid = (int)$_GET['id'];
-    $user = $Users->getUserById($userid);
-    $username = $user['name'];
-    $userpwd = $user['password'];
-    $useremail = $user['email'];
-    $userphone = $user['phone'];
-    //echo "<script>console.log('Debug Objects: " . $userid . "' );</script>";
+    if (isset($_GET['id'])){
+        $userid = (int)$_GET['id'];
+        $user = $Users->getUserById($userid);
+        $username = $user['name'];
+        $userpwd = $user['password'];
+        $useremail = $user['email'];
+        $userphone = $user['phone'];
+    } 
+    //else if (isset($_GET['create'])){
+        //echo "<script>console.log('Debug Objects: " . isset($_GET['create']) . "' );</script>";
+    //}
+    //echo "<script>console.log('Debug Objects: " . isset($_GET['id']) . "' );</script>";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -154,7 +159,7 @@ Coded by www.creative-tim.com
       <!-- End Navbar -->
       <div class="content">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-4" style="<?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
             <div class="card card-user">
               <div class="image">
                 <img src="assets/img/damir-bosnjak.jpg" alt="...">
@@ -191,18 +196,23 @@ Coded by www.creative-tim.com
           </div>
           <div class="col-md-8">
             <div class="card card-user">
-              <div class="card-header row">
-                <div class="col-8 ml-auto mr-auto">
-                    <h5 class="card-title">Edit Profile</h5>
-                </div>
-                <?php
-                    if (isset($_POST['remove_user'])){
-                        $result = $Users->deleteUserById($userid);
-                        echo "<script>console.log('Remove result: " . $result . "' );</script>";
-                        redirect("manage_user.php");
-                    } 
-                ?>
-                <div class="col-4 col-lg-3 ml-auto mr-auto">
+              <div class="card-header row" style="padding: 0 30px;">
+                    <!--<h5 class="card-title">Edit Profile</h5>-->
+                    <?php
+                        if (isset($_GET['create'])){
+                            echo "<h5 class=\"card-title\">Create Profile</h5>";
+                        } else{
+                            echo "<h5 class=\"card-title\">Edit Profile</h5>";
+                        } 
+                        if (isset($_POST['remove_user'])){
+                            $result = $Users->deleteUserById($userid);
+                            if ($result){
+                                echo "<script type='text/javascript'>alert('Success');</script>";
+                                redirect("manage_user.php");
+                            }
+                        } 
+                    ?>
+                <div style="margin-left:auto; margin-right:0; <?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
                     <form method="post">
                         <input type="submit" class="btn btn-danger btn-round" name="remove_user" value="Remove"/>
                     </form>
@@ -212,9 +222,9 @@ Coded by www.creative-tim.com
                 <form method="post">
                   <?php 
                     if (isset($_POST['update_profile'])){
-                        $username = $email = $phone = $password = "";
+                        $username = $useremail = $userphone = $userpwd = "";
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                          $username = test_input($_POST["username"]);
+                          $username = test_input($_POST["username"], "username");
                           $useremail = test_input($_POST["email"]);
                           $userphone = test_input($_POST["phone"]);
                           $newpwd = test_input($_POST["password"]);
@@ -222,7 +232,21 @@ Coded by www.creative-tim.com
                               $userpwd = $newpwd;
                           }
                         }
-                        $result = $Users->updateUserById($userid, $username, $useremail, $userphone, $userpwd);
+                        if (strlen($username) < 6){
+                            echo "<script type='text/javascript'>alert('Username should be 6 characters or longer');</script>";
+                        }else if (strlen($userpwd) < 6){
+                            echo "<script type='text/javascript'>alert('Password should be 6 characters or longer');</script>";
+                        }else {
+                            if (isset($_GET['create'])){
+                                $result = $Users->createUser($username, $useremail, $userphone, $userpwd);
+                            } else{
+                                $result = $Users->updateUserById($userid, $username, $useremail, $userphone, $userpwd);
+                            }
+                            if ($result){
+                                echo "<script type='text/javascript'>alert('Success');</script>";
+                                redirect("manage_user.php");
+                            }
+                        }
                         //echo "<script>console.log('Update result: " . $result . "' );</script>";
                     }
                   ?>
@@ -274,7 +298,13 @@ Coded by www.creative-tim.com
                   </div>
                   <div class="row">
                     <div class="update ml-auto mr-auto">
-                      <input type="submit" class="btn btn-primary btn-round" name="update_profile" value="Update Profile"/>
+                      <?php
+                        if (isset($_GET['create'])){
+                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_profile\" value=\"Create Profile\"/>";
+                        } else{
+                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_profile\" value=\"Update Profile\"/>";
+                        } 
+                      ?>
                     </div>
                   </div>
                 </form>

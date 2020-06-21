@@ -164,7 +164,14 @@ Coded by www.creative-tim.com
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> Dishes</h4>
+                <div class="card-header row" style="padding: 0px 15px;">
+                    <h4 class="card-title"> Dishes</h4>
+                    <div style="margin-left:auto; margin-right:0;">
+                        <a href="dish.php?create=1">
+                            <input type="submit" class="btn btn-success btn-round" name="add_dish" value="Add"/>
+                        </a>
+                    </div>
+                </div>
                 <input id="dish_search" onkeyup="filterTable('dish_search', 'dish_table')" type="text" value="" class="form-control" placeholder="Search...">
               </div>
               <div class="card-body">

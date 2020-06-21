@@ -17,14 +17,16 @@ Coded by www.creative-tim.com
     include "utils.php";
     $db = new DbBase();
     $Dishes = new Dishes($db);
-    $dishid = (int)$_GET['id'];
-    $dish = $Dishes->getDishById($dishid);
-    $dishname = $dish['name'];
-    $dishprice = $dish['price'];
-    $dishdesc = $dish['descriptions'];
-    $dishstatus = $dish['status'];
-    $dishimage = $dish['image'];
-    //echo "<script>console.log('Debug Objects: " . $userid . "' );</script>";
+    if (isset($_GET['id'])){
+        $dishid = (int)$_GET['id'];
+        $dish = $Dishes->getDishById($dishid);
+        $dishname = $dish['name'];
+        $dishprice = $dish['price'];
+        $dishdesc = $dish['descriptions'];
+        $dishstatus = $dish['status'];
+        $dishimage = $dish['image'];
+    }
+    //echo "<script>console.log('Debug Objects: " . $dishimage . "' );</script>";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -153,10 +155,10 @@ Coded by www.creative-tim.com
       <!-- End Navbar -->
       <div class="content">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-4" style="<?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
             <div class="card card-user">
               <div class="image">
-                <img src="assets/img/damir-bosnjak.jpg" alt="...">
+                <img src="<?php echo '../' . $dishimage; ?>" alt="...">
               </div>
               <div class="card-footer">
                 <hr>
@@ -178,18 +180,22 @@ Coded by www.creative-tim.com
           </div>
           <div class="col-md-8">
             <div class="card card-user">
-              <div class="card-header row">
-                <div class="col-8 ml-auto mr-auto">
-                    <h5 class="card-title">Edit Dish Infomation</h5>
-                </div>
+              <div class="card-header row" style="padding: 0 30px;">
                 <?php
+                    if (isset($_GET['create'])){
+                        echo "<h5 class=\"card-title\">Create New Dish</h5>";
+                    } else{
+                        echo "<h5 class=\"card-title\">Edit Dish Information</h5>";
+                    } 
                     if (isset($_POST['remove_dish'])){
                         $result = $Dishes->deleteDishById($dishid);
-                        echo "<script>console.log('Remove result: " . $result . "' );</script>";
-                        redirect("manage_dish.php");
+                        if ($result){
+                            echo "<script type='text/javascript'>alert('Success');</script>";
+                            redirect("manage_dish.php");
+                        }
                     } 
                 ?>
-                <div class="col-4 col-lg-3 ml-auto mr-auto">
+                <div style="margin-left:auto; margin-right:0; <?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
                     <form method="post">
                         <input type="submit" class="btn btn-danger btn-round" name="remove_dish" value="Remove"/>
                     </form>
@@ -200,13 +206,28 @@ Coded by www.creative-tim.com
                   <?php 
                     if (isset($_POST['update_dish'])){
                         $dishname = $dishprice = $dishdesc = $dishstatus = "";
+                        if (!isset($dishimage)){
+                            $dishimage = "";
+                        }
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
                           $dishname = test_input($_POST["name"]);
-                          $dishprice = test_input($_POST["price"]);
+                          $dishprice = (int)test_input($_POST["price"]);
                           $dishdesc = test_input($_POST["desc"]);
-                          $dishstatus = test_input($_POST["status"]);
+                          $dishstatus = (int)test_input($_POST["status"]);
                         }
-                        $result = $Dishes->updateDishById($dishid, $dishname, $dishprice, $dishdesc, $dishstatus, $dishimage);
+                        if (strlen($dishname) < 1){
+                            echo "<script type='text/javascript'>alert('Please enter name');</script>";
+                        }else {
+                            if (isset($_GET['create'])){
+                                $result = $Dishes->createDish($dishname, $dishprice, $dishdesc, $dishstatus, $dishimage);
+                            } else{
+                                $result = $Dishes->updateDishById($dishid, $dishname, $dishprice, $dishdesc, $dishstatus, $dishimage);
+                            }
+                            if ($result){
+                                echo "<script type='text/javascript'>alert('Success');</script>";
+                                redirect("manage_dish.php");
+                            }
+                        }
                         //echo "<script>console.log('Update result: " . $result . "' );</script>";
                     }
                   ?>
@@ -246,7 +267,13 @@ Coded by www.creative-tim.com
                   </div>
                   <div class="row">
                     <div class="update ml-auto mr-auto">
-                      <input type="submit" class="btn btn-primary btn-round" name="update_dish" value="Update Dish Info"/>
+                      <?php
+                        if (isset($_GET['create'])){
+                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_dish\" value=\"Create Dish\"/>";
+                        } else{
+                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_dish\" value=\"Update Dish Info\"/>";
+                        } 
+                      ?>
                     </div>
                   </div>
                 </form>
@@ -292,7 +319,6 @@ Coded by www.creative-tim.com
   <script src="assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="assets/js/paper-dashboard.min.js?v=2.0.1" type="text/javascript"></script><!-- Paper Dashboard DEMO methods, don't include it in your project! -->
-  <script src="assets/demo/demo.js"></script>
 </body>
 
 </html>
