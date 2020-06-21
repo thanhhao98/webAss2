@@ -38,6 +38,22 @@ class Users {
             $total = $result->fetch_assoc()["total"];
             return $total;
         }
+        public function getUserById($id){
+            $query = "SELECT * FROM `Users` WHERE `id` = '$id'";
+            $result = $this->db->query($query);
+            $user = $result->fetch_assoc();
+            return $user;
+        }
+        public function updateUserById($id, $name, $email, $phone, $password){
+            $query = "UPDATE `Users` SET `name`= '$name', `email`= '$email', `phone`= '$phone', `password`= '$password' WHERE `id` = '$id'";
+            $result = $this->db->query($query);
+            return $result;
+        }
+        public function deleteUserById($id){
+            $query = "DELETE FROM `Users` WHERE id='$id'";
+            $result = $this->db->query($query);
+            return $result;
+        }
 }
 
 class Reservations {

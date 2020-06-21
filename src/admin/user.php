@@ -12,6 +12,19 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
+<?php
+    include "../models/db.php";
+    include "utils.php";
+    $db = new DbBase();
+    $Users = new Users($db);
+    $userid = (int)$_GET['id'];
+    $user = $Users->getUserById($userid);
+    $username = $user['name'];
+    $userpwd = $user['password'];
+    $useremail = $user['email'];
+    $userphone = $user['phone'];
+    //echo "<script>console.log('Debug Objects: " . $userid . "' );</script>";
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,8 +43,8 @@ Coded by www.creative-tim.com
   <!-- CSS Files -->
   <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
-  <!-- CSS Just for demo purpose, don't include it in your project -->
-  <link href="assets/demo/demo.css" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project 
+  <link href="assets/demo/demo.css" rel="stylesheet" />-->
 </head>
 
 <body class="">
@@ -44,8 +57,8 @@ Coded by www.creative-tim.com
           </div>
           <!-- <p>CT</p> -->
         </a>
-        <a href="https://www.creative-tim.com" class="simple-text logo-normal">
-          Creative Tim
+        <a href="#" class="simple-text logo-normal">
+          HOME
           <!-- <div class="logo-image-big">
             <img src="assets/img/logo-big.png">
           </div> -->
@@ -54,51 +67,21 @@ Coded by www.creative-tim.com
       <div class="sidebar-wrapper">
         <ul class="nav">
           <li>
-            <a href="./dashboard.html">
+            <a href="./dashboard.php">
               <i class="nc-icon nc-bank"></i>
               <p>Dashboard</p>
             </a>
           </li>
-          <li>
-            <a href="./icons.html">
-              <i class="nc-icon nc-diamond"></i>
-              <p>Icons</p>
-            </a>
-          </li>
-          <li>
-            <a href="./map.html">
-              <i class="nc-icon nc-pin-3"></i>
-              <p>Maps</p>
-            </a>
-          </li>
-          <li>
-            <a href="./notifications.html">
-              <i class="nc-icon nc-bell-55"></i>
-              <p>Notifications</p>
-            </a>
-          </li>
           <li class="active ">
-            <a href="./user.html">
+            <a href="./manage_user.php">
               <i class="nc-icon nc-single-02"></i>
-              <p>User Profile</p>
+              <p>Manage Users</p>
             </a>
           </li>
           <li>
-            <a href="./tables.html">
+            <a href="./manage_dish.php">
               <i class="nc-icon nc-tile-56"></i>
-              <p>Table List</p>
-            </a>
-          </li>
-          <li>
-            <a href="./typography.html">
-              <i class="nc-icon nc-caps-small"></i>
-              <p>Typography</p>
-            </a>
-          </li>
-          <li class="active-pro">
-            <a href="./upgrade.html">
-              <i class="nc-icon nc-spaceship"></i>
-              <p>Upgrade to PRO</p>
+              <p>Manage Dishes</p>
             </a>
           </li>
         </ul>
@@ -116,7 +99,7 @@ Coded by www.creative-tim.com
                 <span class="navbar-toggler-bar bar3"></span>
               </button>
             </div>
-            <a class="navbar-brand" href="javascript:;">Paper Dashboard 2</a>
+            <a class="navbar-brand" href="manage_user.php"><i class="nc-icon nc-minimal-left"></i> Back to Management</a>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -179,17 +162,13 @@ Coded by www.creative-tim.com
               <div class="card-body">
                 <div class="author">
                   <a href="#">
-                    <img class="avatar border-gray" src="assets/img/mike.jpg" alt="...">
-                    <h5 class="title">Chet Faker</h5>
+                    <img class="avatar border-gray" src="assets/img/default-avatar.png" alt="...">
+                    <h5 class="title">Name Placeholder</h5>
                   </a>
-                  <p class="description">
-                    @chetfaker
-                  </p>
                 </div>
                 <p class="description text-center">
-                  "I like the way you work it <br>
-                  No diggity <br>
-                  I wanna bag it up"
+                  "Anh thanh nien tre <br>
+                  Voi tam hon gia coi"
                 </p>
               </div>
               <div class="card-footer">
@@ -197,10 +176,10 @@ Coded by www.creative-tim.com
                 <div class="button-container">
                   <div class="row">
                     <div class="col-lg-3 col-md-6 col-6 ml-auto">
-                      <h5>12<br><small>Files</small></h5>
+                      <h5>12<br><small>Orders</small></h5>
                     </div>
                     <div class="col-lg-4 col-md-6 col-6 ml-auto mr-auto">
-                      <h5>2GB<br><small>Used</small></h5>
+                      <h5>20<br><small>Dishes</small></h5>
                     </div>
                     <div class="col-lg-3 mr-auto">
                       <h5>24,6$<br><small>Spent</small></h5>
@@ -209,147 +188,93 @@ Coded by www.creative-tim.com
                 </div>
               </div>
             </div>
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Team Members</h4>
-              </div>
-              <div class="card-body">
-                <ul class="list-unstyled team-members">
-                  <li>
-                    <div class="row">
-                      <div class="col-md-2 col-2">
-                        <div class="avatar">
-                          <img src="assets/img/faces/ayo-ogunseinde-2.jpg" alt="Circle Image" class="img-circle img-no-padding img-responsive">
-                        </div>
-                      </div>
-                      <div class="col-md-7 col-7">
-                        DJ Khaled
-                        <br />
-                        <span class="text-muted"><small>Offline</small></span>
-                      </div>
-                      <div class="col-md-3 col-3 text-right">
-                        <btn class="btn btn-sm btn-outline-success btn-round btn-icon"><i class="fa fa-envelope"></i></btn>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="row">
-                      <div class="col-md-2 col-2">
-                        <div class="avatar">
-                          <img src="assets/img/faces/joe-gardner-2.jpg" alt="Circle Image" class="img-circle img-no-padding img-responsive">
-                        </div>
-                      </div>
-                      <div class="col-md-7 col-7">
-                        Creative Tim
-                        <br />
-                        <span class="text-success"><small>Available</small></span>
-                      </div>
-                      <div class="col-md-3 col-3 text-right">
-                        <btn class="btn btn-sm btn-outline-success btn-round btn-icon"><i class="fa fa-envelope"></i></btn>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="row">
-                      <div class="col-md-2 col-2">
-                        <div class="avatar">
-                          <img src="assets/img/faces/clem-onojeghuo-2.jpg" alt="Circle Image" class="img-circle img-no-padding img-responsive">
-                        </div>
-                      </div>
-                      <div class="col-ms-7 col-7">
-                        Flume
-                        <br />
-                        <span class="text-danger"><small>Busy</small></span>
-                      </div>
-                      <div class="col-md-3 col-3 text-right">
-                        <btn class="btn btn-sm btn-outline-success btn-round btn-icon"><i class="fa fa-envelope"></i></btn>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
           </div>
           <div class="col-md-8">
             <div class="card card-user">
-              <div class="card-header">
-                <h5 class="card-title">Edit Profile</h5>
+              <div class="card-header row">
+                <div class="col-8 ml-auto mr-auto">
+                    <h5 class="card-title">Edit Profile</h5>
+                </div>
+                <?php
+                    if (isset($_POST['remove_user'])){
+                        $result = $Users->deleteUserById($userid);
+                        echo "<script>console.log('Remove result: " . $result . "' );</script>";
+                        redirect("manage_user.php");
+                    } 
+                ?>
+                <div class="col-4 col-lg-3 ml-auto mr-auto">
+                    <form method="post">
+                        <input type="submit" class="btn btn-danger btn-round" name="remove_user" value="Remove"/>
+                    </form>
+                </div>
               </div>
               <div class="card-body">
-                <form>
+                <form method="post">
+                  <?php 
+                    if (isset($_POST['update_profile'])){
+                        $username = $email = $phone = $password = "";
+                        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                          $username = test_input($_POST["username"]);
+                          $useremail = test_input($_POST["email"]);
+                          $userphone = test_input($_POST["phone"]);
+                          $newpwd = test_input($_POST["password"]);
+                          if (!empty($newpwd)){
+                              $userpwd = $newpwd;
+                          }
+                        }
+                        $result = $Users->updateUserById($userid, $username, $useremail, $userphone, $userpwd);
+                        //echo "<script>console.log('Update result: " . $result . "' );</script>";
+                    }
+                  ?>
                   <div class="row">
-                    <div class="col-md-5 pr-1">
+                    <div class="col-md-3 pr-1">
                       <div class="form-group">
-                        <label>Company (disabled)</label>
-                        <input type="text" class="form-control" disabled="" placeholder="Company" value="Creative Code Inc.">
-                      </div>
-                    </div>
-                    <div class="col-md-3 px-1">
-                      <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" class="form-control" placeholder="Username" value="michael23">
-                      </div>
-                    </div>
-                    <div class="col-md-4 pl-1">
-                      <div class="form-group">
-                        <label for="exampleInputEmail1">Email address</label>
-                        <input type="email" class="form-control" placeholder="Email">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-6 pr-1">
-                      <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" class="form-control" placeholder="Company" value="Chet">
-                      </div>
-                    </div>
-                    <div class="col-md-6 pl-1">
-                      <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" class="form-control" placeholder="Last Name" value="Faker">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-12">
-                      <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" class="form-control" placeholder="Home Address" value="Melbourne, Australia">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-4 pr-1">
-                      <div class="form-group">
-                        <label>City</label>
-                        <input type="text" class="form-control" placeholder="City" value="Melbourne">
+                        <label>ID (disabled)</label>
+                        <input name="id" type="text" class="form-control" disabled="" placeholder="ID" value="<?php echo $userid; ?>">
                       </div>
                     </div>
                     <div class="col-md-4 px-1">
                       <div class="form-group">
-                        <label>Country</label>
-                        <input type="text" class="form-control" placeholder="Country" value="Australia">
+                        <label>Username</label>
+                        <input name="username" type="text" class="form-control" placeholder="Username" value="<?php echo $username; ?>">
                       </div>
                     </div>
-                    <div class="col-md-4 pl-1">
+                    <div class="col-md-5 pl-1">
                       <div class="form-group">
-                        <label>Postal Code</label>
-                        <input type="number" class="form-control" placeholder="ZIP Code">
+                        <label>Password</label>
+                        <input name="password" type="password" class="form-control" placeholder="Password" value="">
+                      </div>
+                    </div>
+                  </div>
+                  <!--
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" class="form-control" placeholder="Name" value="69420">
+                      </div>
+                    </div>
+                  </div>
+                  -->
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label>Phone</label>
+                        <input name="phone" type="number" class="form-control" placeholder="000000000" value="<?php echo $userphone; ?>">
                       </div>
                     </div>
                   </div>
                   <div class="row">
                     <div class="col-md-12">
                       <div class="form-group">
-                        <label>About Me</label>
-                        <textarea class="form-control textarea">Oh so, your weak rhyme You doubt I'll bother, reading into it</textarea>
+                        <label for="exampleInputEmail1">Email address</label>
+                        <input name="email" type="email" class="form-control" placeholder="Email" value="<?php echo $useremail; ?>">
                       </div>
                     </div>
                   </div>
                   <div class="row">
                     <div class="update ml-auto mr-auto">
-                      <button type="submit" class="btn btn-primary btn-round">Update Profile</button>
+                      <input type="submit" class="btn btn-primary btn-round" name="update_profile" value="Update Profile"/>
                     </div>
                   </div>
                 </form>
@@ -361,6 +286,7 @@ Coded by www.creative-tim.com
       <footer class="footer footer-black  footer-white ">
         <div class="container-fluid">
           <div class="row">
+            <!--
             <nav class="footer-nav">
               <ul>
                 <li><a href="https://www.creative-tim.com" target="_blank">Creative Tim</a></li>
@@ -368,11 +294,12 @@ Coded by www.creative-tim.com
                 <li><a href="https://www.creative-tim.com/license" target="_blank">Licenses</a></li>
               </ul>
             </nav>
+            -->
             <div class="credits ml-auto">
               <span class="copyright">
                 © <script>
                   document.write(new Date().getFullYear())
-                </script>, made with <i class="fa fa-heart heart"></i> by Creative Tim
+                </script>, made with <i class="fa fa-heart heart"></i>
               </span>
             </div>
           </div>
@@ -385,10 +312,10 @@ Coded by www.creative-tim.com
   <script src="assets/js/core/popper.min.js"></script>
   <script src="assets/js/core/bootstrap.min.js"></script>
   <script src="assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-  <!--  Google Maps Plugin    -->
+  <!--  Google Maps Plugin    
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
   <!-- Chart JS -->
-  <script src="assets/js/plugins/chartjs.min.js"></script>
+  <script src="assets/js/plugins/chartjs.min.js"></script>-->
   <!--  Notifications Plugin    -->
   <script src="assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->

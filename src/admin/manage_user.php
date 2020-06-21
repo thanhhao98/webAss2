@@ -107,7 +107,7 @@ Coded by www.creative-tim.com
                 <span class="navbar-toggler-bar bar3"></span>
               </button>
             </div>
-            <a class="navbar-brand" href="javascript:;">Paper Dashboard 2</a>
+            <a class="navbar-brand" href="#">Manage Users</a>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -187,7 +187,8 @@ Coded by www.creative-tim.com
                       <th>
                         isAdmin
                       </th>
-                      <th class="text-right">
+                      <!--<th class="text-right">-->
+                      <th>
                         Action
                       </th>
                     </thead>
@@ -200,6 +201,7 @@ Coded by www.creative-tim.com
                               echo '<td>'.$user['email'].'</td>';
                               echo '<td>'.$user['phone'].'</td>';
                               echo '<td>'.$user['isAdmin'].'</td>';
+                              echo "<td><a href=\"user.php?id=$user[id]\" class=\"btn btn-primary btn-round\"><i class=\"nc-icon nc-settings\"></i></a></td>";
                               echo '</tr>';
                           }
                       ?>
