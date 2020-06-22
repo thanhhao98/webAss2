@@ -161,9 +161,12 @@ Coded by www.creative-tim.com
               <div class="image">
                 <input class="img-dish" id="btnfile" type="image" src="<?php echo '../' . $dishimage; ?>" alt="Click to upload"/>
                 <div style="display: none;">
-                    <input type="file" id="uploadfile" />
+                  <input type="file" id="uploadfile" />
                 </div>
               </div>
+              <p class=" text-center" style="<?php if (!isset($_GET['imgName'])){ echo 'display: none;'; }?>">
+                New image: <?php echo $_GET['imgName']; ?>
+              </p>
 
               <div class="card-footer">
                 <hr>
