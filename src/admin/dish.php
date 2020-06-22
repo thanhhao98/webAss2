@@ -156,19 +156,18 @@ Coded by www.creative-tim.com
       <!-- End Navbar -->
       <div class="content">
         <div class="row">
-          <div class="col-md-4" style="<?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
+          <div class="col-md-4">
             <div class="card card-user">
               <div class="image">
-                <input class="img-dish" id="btnfile" type="image" src="<?php echo '../' . $dishimage; ?>" alt="Click to upload"/>
+                <input class="img-dish" id="btnfile" type="image" src="<?php echo '../' . $dishimage; ?>" alt="Click to upload dish image preview"/>
                 <div style="display: none;">
                   <input type="file" id="uploadfile" />
                 </div>
               </div>
-              <p class=" text-center" style="<?php if (!isset($_GET['imgName'])){ echo 'display: none;'; }?>">
+              <p class="text-center" style="<?php if (!isset($_GET['imgName'])){ echo 'display: none;'; }?>">
                 New image: <?php echo $_GET['imgName']; ?>
               </p>
-
-              <div class="card-footer">
+              <div class="card-footer" style="<?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
                 <hr>
                 <div class="button-container">
                   <div class="row">
@@ -214,11 +213,11 @@ Coded by www.creative-tim.com
                   <?php 
                     if (isset($_POST['update_dish'])){
                         $dishname = $dishprice = $dishdesc = $dishstatus = "";
-                        if (!isset($dishimage)){
-                            $dishimage = "";
-                        }
-                        else if (isset($_GET['imgName'])){
+                        if (isset($_GET['imgName'])){
                             $dishimage = "images/" . $_GET['imgName'];
+                        }
+                        else if (!isset($dishimage)){
+                            $dishimage = "";
                         }
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
                           $dishname = test_input($_POST["name"]);
