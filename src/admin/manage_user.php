@@ -178,7 +178,7 @@ Coded by www.creative-tim.com
                 <div class="table-responsive">
                   <table class="table js-sort-table" id="user_table">
                     <thead class=" text-primary">
-                      <th>
+                      <th class="js-sort-number">
                         ID
                       </th>
                       <th>

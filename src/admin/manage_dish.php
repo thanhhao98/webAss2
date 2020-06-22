@@ -178,7 +178,7 @@ Coded by www.creative-tim.com
                 <div class="table-responsive">
                   <table class="table js-sort-table" id="dish_table">
                     <thead class=" text-primary">
-                      <th>
+                      <th class="js-sort-number">
                         ID
                       </th>
                       <th>
@@ -187,7 +187,7 @@ Coded by www.creative-tim.com
                       <th>
                         Description
                       </th>
-                      <th>
+                      <th class="js-sort-number">
                         Price
                       </th>
                       <th>
