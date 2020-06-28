@@ -29,31 +29,50 @@ class Users {
 		$this->db = $dbBase;
 	}
 	public function createUser($name, $email, $phone, $password, $isAdmin=0){
-	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $email, $phone, $password, $isAdmin);
+		$hash_password = password_hash($password, PASSWORD_DEFAULT);
+	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $email, $phone, $hash_password, $isAdmin);
 	    return $this->db->query($sql);
 	}
-        public function getTotalUserCount(){
-            $query = "SELECT COUNT(*) as `total` FROM `Users`"; 
-            $result = $this->db->query($query);
-            $total = $result->fetch_assoc()["total"];
-            return $total;
-        }
-        public function getUserById($id){
-            $query = "SELECT * FROM `Users` WHERE `id` = '$id'";
-            $result = $this->db->query($query);
-            $user = $result->fetch_assoc();
-            return $user;
-        }
-        public function updateUserById($id, $name, $email, $phone, $password){
-            $query = "UPDATE `Users` SET `name`= '$name', `email`= '$email', `phone`= '$phone', `password`= '$password' WHERE `id` = '$id'";
-            $result = $this->db->query($query);
-            return $result;
-        }
-        public function deleteUserById($id){
-            $querY = "DELETE FROM `Users` WHERE id='$id'";
-            $result = $this->db->query($query);
-            return $result;
-        }
+	public function login($email, $password){
+		$query = "SELECT * FROM `Users` WHERE `email` = '$email'";
+		$result = $this->db->query($query);
+		if ($result->num_rows){
+			$row = $result->fetch_assoc();
+			$value = array($row)[0];
+			$hash = $value['password'];
+			if(password_verify($password ,$hash)){
+				return $value;
+			} 
+		}
+		return false;
+	}
+	public function getTotalUserCount(){
+		$query = "SELECT COUNT(*) as `total` FROM `Users`"; 
+		$result = $this->db->query($query);
+		$total = $result->fetch_assoc()["total"];
+		return $total;
+	}
+	public function emailIsExist($email){
+		$query = "SELECT * FROM `Users` WHERE `email` = '$email'";
+		$result = $this->db->query($query);
+		return $result->num_rows == 0;
+	}
+	public function getUserById($id){
+		$query = "SELECT * FROM `Users` WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		$user = $result->fetch_assoc();
+		return $user;
+	}
+	public function updateUserById($id, $name, $email, $phone, $password){
+		$query = "UPDATE `Users` SET `name`= '$name', `email`= '$email', `phone`= '$phone', `password`= '$password' WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		return $result;
+	}
+	public function deleteUserById($id){
+		$querY = "DELETE FROM `Users` WHERE id='$id'";
+		$result = $this->db->query($querY);
+		return $result;
+	}
 }
 
 class Reservations {
