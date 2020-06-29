@@ -1,9 +1,9 @@
 <?php
-	include('../auth/auth.php');
-	if(getRole() != 'admin'){
-		header("location: /");
-		exit;
-	}
+    include('../auth/auth.php');
+    if(getRole() != 'admin'){
+        header("location: /");
+        exit;
+    }
     include ("../models/db.php");
     $db = New DbBase();
     $Infos = new Infos($db);

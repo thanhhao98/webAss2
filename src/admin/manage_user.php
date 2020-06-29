@@ -1,18 +1,9 @@
-<!--
-=========================================================
-* Paper Dashboard 2 - v2.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-2
-* Copyright 2020 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <?php
+    include('../auth/auth.php');
+    if(getRole() != 'admin'){
+        header("location: /");
+        exit;
+    }
     include ("../models/db.php");
     $db = New DbBase();
     $Users = new Users($db);
@@ -175,6 +166,28 @@ Coded by www.creative-tim.com
                 <input id="user_search" onkeyup="filterTable('user_search', 'user_table')" type="text" value="" class="form-control" placeholder="Search...">
               </div>
               <div class="card-body">
+<!--
+                <div class="row table-filter">
+                    <div class="col-md-9">
+                        <form method="get">
+                          Show
+                          <select name="num_per_page">
+                            <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5</option>
+                            <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10</option>
+                            <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25</option>
+                            <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50</option>
+                            <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100</option>
+                          </select>
+                          entries
+                          <input type="submit" name="submit" value="Filter"/>
+                        </form>
+                    </div>
+
+                    <div class="text-right col-md-3">
+                        <input id="user_search" onkeyup="filterTable('user_search', 'user_table')" type="text" value="" class="form-control" placeholder="Search...">
+                    </div>
+                </div>
+-->
                 <div class="table-responsive">
                   <table class="table js-sort-table" id="user_table">
                     <thead class=" text-primary">
@@ -216,35 +229,37 @@ Coded by www.creative-tim.com
                 </div>
               </div>
             </div>
-            <div class="pagination">
-              <?php
-                  $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
-                  echo '<a href="?page=' . $prev_page . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
-                    foreach(range(1, $total_pages) as $page){
-                        // Check if we're on the current page in the loop
-                        if($page == $_GET['page']){
-                            echo '<a class="active">' . $page . '</a>';
-                        }else if($page == 1 || $page == $totalPages || ($page >= $_GET['page'] - 2 && $page <= $_GET['page'] + 2)){
-                            echo '<a href="?page=' . $page .  '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
+            <div class="row ">
+                <div class="pagination text-right col-md-9">
+                  <?php
+                      $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
+                      echo '<a href="?page=' . $prev_page . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
+                        foreach(range(1, $total_pages) as $page){
+                            // Check if we're on the current page in the loop
+                            if($page == $_GET['page']){
+                                echo '<a class="active">' . $page . '</a>';
+                            }else if($page == 1 || $page == $total_pages || ($page >= $_GET['page'] - 5 && $page <= $_GET['page'] + 5)){
+                                echo '<a href="?page=' . $page .  '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
+                            }
                         }
-                    }
-                  $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
-                  echo '<a href="?page=' . $next_page . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
-              ?>
-            </div>
-            <div class="text-right">
-                <form method="get">
-                  Show
-                  <select name="num_per_page">
-                    <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5</option>
-                    <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10</option>
-                    <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25</option>
-                    <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50</option>
-                    <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100</option>
-                  </select>
-                  entries
-                  <input type="submit" name="submit"/>
-                </form>
+                      $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
+                      echo '<a href="?page=' . $next_page . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
+                  ?>
+                </div>
+                <div class="col-md-3">
+                    <form method="get">
+                      Show
+                      <select name="num_per_page">
+                        <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5</option>
+                        <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10</option>
+                        <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25</option>
+                        <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50</option>
+                        <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100</option>
+                      </select>
+                      entries
+                      <input type="submit" name="submit" value="Filter"/>
+                    </form>
+                </div>
             </div>
           </div>
         </div>
@@ -276,6 +291,16 @@ Coded by www.creative-tim.com
   <!-- My script -->
   <script src="assets/js/myscripts.js"></script>
   <script src="assets/js/sort-table.js"></script>
+  <script>
+      if(window.location.hash == '#updateSuccess'){
+        showNotification('top', 'center', 'success', 'User updated successfully')
+      } else if(window.location.hash == '#createSuccess'){
+        showNotification('top', 'center', 'success', 'User created successfully')
+      } else if(window.location.hash == '#removeSuccess'){
+        showNotification('top', 'center', 'success', 'User removed successfully')
+      }
+      removeHash();
+  </script>
 </body>
 
 </html>

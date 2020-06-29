@@ -18,3 +18,14 @@
     height: 100%;
     border-radius: 12px;
 }
+
+.table-filter{
+    /*background-color: #66c4de;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 12px;
+}

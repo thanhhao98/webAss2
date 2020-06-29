@@ -1,18 +1,9 @@
-<!--
-=========================================================
-* Paper Dashboard 2 - v2.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-2
-* Copyright 2020 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <?php
+    include('../auth/auth.php');
+    if(getRole() != 'admin'){
+        header("location: /");
+        exit;
+    }
     include "../models/db.php";
     include "utils.php";
     $db = new DbBase();
@@ -198,7 +189,7 @@ Coded by www.creative-tim.com
                         $result = $Dishes->deleteDishById($dishid);
                         if ($result){
                             echo "<script type='text/javascript'>alert('Success');</script>";
-                            redirect("manage_dish.php");
+                            redirect("manage_dish.php#removeSuccess");
                         }
                     } 
                 ?>
@@ -230,13 +221,19 @@ Coded by www.creative-tim.com
                         }else {
                             if (isset($_GET['create'])){
                                 $result = $Dishes->createDish($dishname, $dishprice, $dishdesc, $dishstatus, $dishimage);
+                                if ($result){
+                                    redirect("manage_dish.php#createSuccess");
+                                }
                             } else{
                                 $result = $Dishes->updateDishById($dishid, $dishname, $dishprice, $dishdesc, $dishstatus, $dishimage);
+                                if ($result){
+                                    redirect("manage_dish.php#updateSuccess");
+                                }
                             }
-                            if ($result){
-                                echo "<script type='text/javascript'>alert('Success');</script>";
-                                redirect("manage_dish.php");
-                            }
+                            //if ($result){
+                                //echo "<script type='text/javascript'>alert('Success');</script>";
+                                //redirect("manage_dish.php");
+                            //}
                         }
                         //echo "<script>console.log('Update result: " . $result . "' );</script>";
                     }

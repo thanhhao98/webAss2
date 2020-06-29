@@ -1,23 +1,14 @@
-<!--
-=========================================================
-* Paper Dashboard 2 - v2.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-2
-* Copyright 2020 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <?php
+    include('../auth/auth.php');
+    if(getRole() != 'admin'){
+        header("location: /");
+        exit;
+    }
     include ("../models/db.php");
     $db = New DbBase();
     $Dishes = new Dishes($db);
     $total = $Dishes->getTotalDishCount();
-    (isset($_GET["num_per_page"])) ? $num_per_page = $_GET["num_per_page"] : $num_per_page=25;
+    (isset($_GET["num_per_page"])) ? $num_per_page = $_GET["num_per_page"] : $num_per_page=5;
     //echo "<script>console.log('Debug Objects: " . $_GET["num_per_page"] . "' );</script>";
     $total_pages = ceil($total / $num_per_page);
     // Check that the page number is set.
@@ -172,7 +163,7 @@ Coded by www.creative-tim.com
                         </a>
                     </div>
                 </div>
-                <input id="dish_search" onkeyup="filterTable('dish_search', 'dish_table')" type="text" value="" class="form-control" placeholder="Search...">
+                <input id="dish_search" onkeyup="filterTable('dish_search', 'dish_table')" type="text" value="" class="form-control" placeholder="Search current page...">
               </div>
               <div class="card-body">
                 <div class="table-responsive">
@@ -216,35 +207,35 @@ Coded by www.creative-tim.com
                 </div>
               </div>
             </div>
-            <div class="pagination">
-              <?php
-                  $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
-                  echo '<a href="?page=' . $prev_page . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
-                    foreach(range(1, $total_pages) as $page){
-                        // Check if we're on the current page in the loop
-                        if($page == $_GET['page']){
-                            echo '<a class="active">' . $page . '</a>';
-                        }else if($page == 1 || $page == $totalPages || ($page >= $_GET['page'] - 2 && $page <= $_GET['page'] + 2)){
-                            echo '<a href="?page=' . $page .  '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
+            <div class="row ">
+                <div class="pagination text-right col-md-9">
+                  <?php
+                      $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
+                      echo '<a href="?page=' . $prev_page . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
+                        foreach(range(1, $total_pages) as $page){
+                            // Check if we're on the current page in the loop
+                            if($page == $_GET['page']){
+                                echo '<a class="active">' . $page . '</a>';
+                            }else if($page == 1 || $page == $total_pages || ($page >= $_GET['page'] - 5 && $page <= $_GET['page'] + 5)){
+                                echo '<a href="?page=' . $page .  '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
+                            }
                         }
-                    }
-                  $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
-                  echo '<a href="?page=' . $next_page . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
-              ?>
-            </div>
-            <div class="text-right">
-                <form method="get">
-                  Show
-                  <select name="num_per_page">
-                    <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5</option>
-                    <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10</option>
-                    <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25</option>
-                    <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50</option>
-                    <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100</option>
-                  </select>
-                  entries
-                  <input type="submit" name="submit"/>
-                </form>
+                      $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
+                      echo '<a href="?page=' . $next_page . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
+                  ?>
+                </div>
+                <div class="col-md-3">
+                    <form method="get">
+                      <select name="num_per_page">
+                        <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5 entries</option>
+                        <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10 entries</option>
+                        <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25 entries</option>
+                        <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50 entries</option>
+                        <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100 entries</option>
+                      </select>
+                      <input type="submit" name="submit" value="Filter"/>
+                    </form>
+                </div>
             </div>
           </div>
         </div>
@@ -276,6 +267,16 @@ Coded by www.creative-tim.com
   <!-- My script -->
   <script src="assets/js/myscripts.js"></script>
   <script src="assets/js/sort-table.js"></script>
+  <script>
+      if(window.location.hash == '#updateSuccess'){
+        showNotification('top', 'center', 'success', 'Dish updated successfully')
+      } else if(window.location.hash == '#createSuccess'){
+        showNotification('top', 'center', 'success', 'Dish created successfully')
+      } else if(window.location.hash == '#removeSuccess'){
+        showNotification('top', 'center', 'success', 'Dish removed successfully')
+      }
+      removeHash();
+  </script>
 </body>
 
 </html>

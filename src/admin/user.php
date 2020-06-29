@@ -1,18 +1,9 @@
-<!--
-=========================================================
-* Paper Dashboard 2 - v2.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-2
-* Copyright 2020 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <?php
+    include('../auth/auth.php');
+    if(getRole() != 'admin'){
+        header("location: /");
+        exit;
+    }
     include "../models/db.php";
     include "utils.php";
     $db = new DbBase();
@@ -207,8 +198,8 @@ Coded by www.creative-tim.com
                         if (isset($_POST['remove_user'])){
                             $result = $Users->deleteUserById($userid);
                             if ($result){
-                                echo "<script type='text/javascript'>alert('Success');</script>";
-                                redirect("manage_user.php");
+                                //echo "<script type='text/javascript'>alert('Success');</script>";
+                                redirect("manage_user.php#removeSuccess");
                             }
                         } 
                     ?>
@@ -239,13 +230,19 @@ Coded by www.creative-tim.com
                         }else {
                             if (isset($_GET['create'])){
                                 $result = $Users->createUser($username, $useremail, $userphone, $userpwd);
+                                if ($result){
+                                    redirect("manage_user.php#createSuccess");
+                                }
                             } else{
                                 $result = $Users->updateUserById($userid, $username, $useremail, $userphone, $userpwd);
+                                if ($result){
+                                    redirect("manage_user.php#updateSuccess");
+                                }
                             }
-                            if ($result){
-                                echo "<script type='text/javascript'>alert('Success');</script>";
-                                redirect("manage_user.php");
-                            }
+                            //if ($result){
+                                //echo "<script type='text/javascript'>alert('Success');</script>";
+                                //redirect("manage_user.php#updateSuccess");
+                            //}
                         }
                         //echo "<script>console.log('Update result: " . $result . "' );</script>";
                     }
