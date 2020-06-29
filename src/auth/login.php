@@ -23,11 +23,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		if(!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)){
 			$email_err = "Invalid email format";
 		} else {
-			if($Users->emailIsExist($_post["email"])){
-				$email = trim($_POST["email"]);
-			} else {
-				$email_err = "Email is used";
-			}
+			$email = trim($_POST["email"]);
 		}
 	}
     

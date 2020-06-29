@@ -31,7 +31,8 @@ class Users {
 	public function createUser($name, $email, $phone, $password, $isAdmin=0){
 		$hash_password = password_hash($password, PASSWORD_DEFAULT);
 	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $email, $phone, $hash_password, $isAdmin);
-	    return $this->db->query($sql);
+		$result = $this->db->query($sql);
+	    return $result;
 	}
 	public function login($email, $password){
 		$query = "SELECT * FROM `Users` WHERE `email` = '$email'";
@@ -55,7 +56,7 @@ class Users {
 	public function emailIsExist($email){
 		$query = "SELECT * FROM `Users` WHERE `email` = '$email'";
 		$result = $this->db->query($query);
-		return $result->num_rows == 0;
+		return $result->num_rows != 0;
 	}
 	public function getUserById($id){
 		$query = "SELECT * FROM `Users` WHERE `id` = '$id'";

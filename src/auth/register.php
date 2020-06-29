@@ -1,7 +1,10 @@
 <?php
-// Include config file
- 
-// Define variables and initialize with empty values
+include('../auth/auth.php');
+$role = getRole();
+if($role != 'unknown'){
+	header("location: /");
+	exit;
+}
 $username = $email = $phone = $password = $confirm_password = "";
 $username_err = $email_err = $phone_err = $password_err = $confirm_password_err = "";
 $isAdmin = false;
@@ -20,10 +23,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		if(!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)){
 			$email_err = "Invalid email format";
 		} else {
-			if($Users->emailIsExist($_post["email"])){
-				$email = trim($_POST["email"]);
-			} else {
+			if($Users->emailIsExist($_POST["email"])){
 				$email_err = "Email is used";
+			} else {
+				$email = trim($_POST["email"]);
 			}
 		}
 	}
@@ -55,7 +58,23 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	if ($_POST["isAdmin"] == "admin"){
 		$isAdmin = true;
 	}
-	$Users->createUser($username, $email, $phone, $password, $isAdmin);
+	if ($username_err == "" and $email_err =="" and $phone_err == "" and $password_err == "" and $confirm_password_err == ""){
+		$Users->createUser($username, $email, $phone, $password, $isAdmin);
+		$_SESSION["loggedin"] = true;
+		$location = "";
+		if ($isAdmin){
+			$_SESSION["admin"] = true;
+			$location = "location: /admin/dashboard.php";
+		} else {
+			$_SESSION["admin"] = false;
+			$location = "location: /";
+		}
+		$_SESSION["userInfo"] = ["email"=> $email, "username"=> $username, "phone"=> $phone];
+		$_SESSION["userId"] = 10;
+		header($location);
+		exit;
+
+	}
 }
 ?>
  
