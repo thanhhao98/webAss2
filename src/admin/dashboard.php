@@ -1,18 +1,9 @@
-<!--
-=========================================================
-* Paper Dashboard 2 - v2.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-2
-* Copyright 2020 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <?php
+	include('../auth/auth.php');
+	if(getRole() != 'admin'){
+		header("location: /");
+		exit;
+	}
     include ("../models/db.php");
     $db = New DbBase();
     $Infos = new Infos($db);
@@ -52,11 +43,10 @@ Coded by www.creative-tim.com
   <div class="wrapper ">
     <div class="sidebar" data-color="white" data-active-color="danger">
       <div class="logo">
-        <a href="https://www.creative-tim.com" class="simple-text logo-mini">
+        <a href="/" class="simple-text logo-mini">
           <div class="logo-image-small">
             <img src="assets/img/logo-small.png">
           </div>
-          <!-- <p>CT</p> -->
         </a>
         <a href="#" class="simple-text logo-normal">
           HOME

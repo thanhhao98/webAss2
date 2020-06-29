@@ -24,44 +24,61 @@ class DbBase {
 class Users {
 	const NAME_TABLE = "Users";
 	private $db;
-	private $insertFormat = "INSERT INTO %s (name, email, phone, password, isAdmin) VALUES (%s, %s, %s, %s, %d)";
+	private $insertFormat = "INSERT INTO %s (name, email, phone, password, isAdmin) VALUES ('%s', '%s', '%s', '%s', '%d')";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
 	public function createUser($name, $email, $phone, $password, $isAdmin=0){
-            //$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $email, $phone, $password, $isAdmin);	
-            //return $this->db->query($sql);
-            $query = "INSERT INTO Users (name, email, phone, password, isAdmin) VALUES ('$name', '$email', '$phone', '$password', '$isAdmin')";
-            return $this->db->query($query);
+		$hash_password = password_hash($password, PASSWORD_DEFAULT);
+	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $email, $phone, $hash_password, $isAdmin);
+	    return $this->db->query($sql);
 	}
-        public function getTotalUserCount(){
-            $query = "SELECT COUNT(*) as `total` FROM `Users`"; 
-            $result = $this->db->query($query);
-            $total = $result->fetch_assoc()["total"];
-            return $total;
-        }
-        public function getUserById($id){
-            $query = "SELECT * FROM `Users` WHERE `id` = '$id'";
-            $result = $this->db->query($query);
-            $user = $result->fetch_assoc();
-            return $user;
-        }
-        public function updateUserById($id, $name, $email, $phone, $password){
-            $query = "UPDATE `Users` SET `name`= '$name', `email`= '$email', `phone`= '$phone', `password`= '$password' WHERE `id` = '$id'";
-            $result = $this->db->query($query);
-            return $result;
-        }
-        public function deleteUserById($id){
-            $query = "DELETE FROM `Users` WHERE id='$id'";
-            $result = $this->db->query($query);
-            return $result;
-        }
+	public function login($email, $password){
+		$query = "SELECT * FROM `Users` WHERE `email` = '$email'";
+		$result = $this->db->query($query);
+		if ($result->num_rows){
+			$row = $result->fetch_assoc();
+			$value = array($row)[0];
+			$hash = $value['password'];
+			if(password_verify($password ,$hash)){
+				return $value;
+			} 
+		}
+		return false;
+	}
+	public function getTotalUserCount(){
+		$query = "SELECT COUNT(*) as `total` FROM `Users`"; 
+		$result = $this->db->query($query);
+		$total = $result->fetch_assoc()["total"];
+		return $total;
+	}
+	public function emailIsExist($email){
+		$query = "SELECT * FROM `Users` WHERE `email` = '$email'";
+		$result = $this->db->query($query);
+		return $result->num_rows == 0;
+	}
+	public function getUserById($id){
+		$query = "SELECT * FROM `Users` WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		$user = $result->fetch_assoc();
+		return $user;
+	}
+	public function updateUserById($id, $name, $email, $phone, $password){
+		$query = "UPDATE `Users` SET `name`= '$name', `email`= '$email', `phone`= '$phone', `password`= '$password' WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		return $result;
+	}
+	public function deleteUserById($id){
+		$querY = "DELETE FROM `Users` WHERE id='$id'";
+		$result = $this->db->query($querY);
+		return $result;
+	}
 }
 
 class Reservations {
 	const NAME_TABLE = "Reservations";
 	private $db;
-	private $insertFormat = "INSERT INTO %s (user, numPersons, status, createTime, lastUpdatedByAdmin) VALUES (%d, %d, %s, %s, %d)";
+	private $insertFormat = "INSERT INTO %s (user, numPersons, status, createTime, lastUpdatedByAdmin) VALUES ('%d', '%d', '%s', '%s', '%d')";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
@@ -74,7 +91,7 @@ class Reservations {
 class ReservationItem {
 	const NAME_TABLE = "ReservationItem";
 	private $db;
-	private $insertFormat = "INSERT INTO %s (reservation, dish, quantity) VALUES (%d, %d, %d)";
+	private $insertFormat = "INSERT INTO %s (reservation, dish, quantity) VALUES ('%d', '%d', '%d')";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
@@ -87,15 +104,13 @@ class ReservationItem {
 class Dishes{
 	const NAME_TABLE = "Dishes";
 	private $db;
-	private $insertFormat = "INSERT INTO %s (name, price, descriptions, image, status, lastUpdatedByAdmin) VALUES (%s, %d, %s, %s, %d, %d)";
+	private $insertFormat = "INSERT INTO %s (name, price, descriptions, image, status, lastUpdatedByAdmin) VALUES ('%s', '%d', '%s', '%s', '%d', '%d')";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
 	public function createDish($name, $price, $descriptions, $status, $image, $lastUpdatedByAdmin=1){
-            //$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);	
-            //return $this->db->query($sql);
-            $query = "INSERT INTO Dishes (name, price, descriptions, status, image) VALUES ('$name', '$price', '$descriptions', '$status', '$image')";
-            return $this->db->query($query);
+	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);
+	    return $this->db->query($sql);
 	}
         public function getTotalDishCount(){
             $query = "SELECT COUNT(*) as `total` FROM `Dishes`"; 
@@ -124,7 +139,7 @@ class Dishes{
 class Comments{
 	const NAME_TABLE = "Comments";
 	private $db;
-	private $insertFormat = "INSERT INTO %s (user, content, createTime, visibility, lastUpdatedByAdmin) VALUES (%d, %s, %s, %d, %d)";
+	private $insertFormat = "INSERT INTO %s (user, content, createTime, visibility, lastUpdatedByAdmin) VALUES ('%d', '%s', '%s', '%d', '%d')";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
@@ -137,7 +152,7 @@ class Comments{
 class Infos{
 	const NAME_TABLE = "Infos";
 	private $db;
-	private $insertFormat = "INSERT INTO %s (name, content, status, lastUpdatedByAdmin) VALUES (%s, %s, %d, %d)";
+	private $insertFormat = "INSERT INTO %s (name, content, status, lastUpdatedByAdmin) VALUES ('%s', '%s', '%d', '%d')";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
