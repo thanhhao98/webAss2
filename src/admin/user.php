@@ -30,7 +30,7 @@
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    Paper Dashboard 2 by Creative Tim
+    Admin - Create New Admin
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -159,7 +159,7 @@
                 <div class="author">
                   <a href="#">
                     <img class="avatar border-gray" src="assets/img/default-avatar.png" alt="...">
-                    <h5 class="title">Name Placeholder</h5>
+                    <h5 class="title"><?php echo $username; ?></h5>
                   </a>
                 </div>
                 <p class="description text-center">
@@ -191,7 +191,7 @@
                     <!--<h5 class="card-title">Edit Profile</h5>-->
                     <?php
                         if (isset($_GET['create'])){
-                            echo "<h5 class=\"card-title\">Create Profile</h5>";
+                            echo "<h5 class=\"card-title\">Create New Admin</h5>";
                         } else{
                             echo "<h5 class=\"card-title\">Edit Profile</h5>";
                         } 
@@ -213,23 +213,35 @@
                 <form method="post">
                   <?php 
                     if (isset($_POST['update_profile'])){
-                        $username = $useremail = $userphone = $userpwd = "";
+                        $username = $userphone = $userpwd = "";
+                        $is_same_email = false;
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
                           $username = test_input($_POST["username"], "username");
-                          $useremail = test_input($_POST["email"]);
+                          $newuseremail = test_input($_POST["email"]);
                           $userphone = test_input($_POST["phone"]);
                           $newpwd = test_input($_POST["password"]);
                           if (!empty($newpwd)){
                               $userpwd = $newpwd;
                           }
+                          if ($useremail == $newuseremail){
+                              $is_same_email = true;
+                          }
                         }
-                        if (strlen($username) < 6){
-                            echo "<script type='text/javascript'>alert('Username should be 6 characters or longer');</script>";
+                        if (strlen($username) < 1){
+                            echo "<script type='text/javascript'>alert('Please enter a username');</script>";
                         }else if (strlen($userpwd) < 6){
                             echo "<script type='text/javascript'>alert('Password should be 6 characters or longer');</script>";
-                        }else {
+                        }else if (strlen($userphone) < 1){
+                            echo "<script type='text/javascript'>alert('Please enter a phone number');</script>";
+                        } else if (strlen($useremail) < 1){
+                            echo "<script type='text/javascript'>alert('Please enter an email');</script>";
+                        } else if (!filter_var($useremail)){
+                            echo "<script type='text/javascript'>alert('Invalid email format');</script>";
+                        } else if ($Users->emailIsExist($useremail) && !$is_same_email){
+                            echo "<script type='text/javascript'>alert('Email already existed');</script>";
+                        } else {
                             if (isset($_GET['create'])){
-                                $result = $Users->createUser($username, $useremail, $userphone, $userpwd);
+                                $result = $Users->createUser($username, $useremail, $userphone, $userpwd, 1);
                                 if ($result){
                                     redirect("manage_user.php#createSuccess");
                                 }
@@ -297,7 +309,7 @@
                     <div class="update ml-auto mr-auto">
                       <?php
                         if (isset($_GET['create'])){
-                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_profile\" value=\"Create Profile\"/>";
+                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_profile\" value=\"Create\"/>";
                         } else{
                             echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_profile\" value=\"Update Profile\"/>";
                         } 

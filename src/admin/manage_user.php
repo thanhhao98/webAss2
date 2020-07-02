@@ -159,7 +159,7 @@
                     <h4 class="card-title"> Users</h4>
                     <div style="margin-left:auto; margin-right:0;">
                         <a href="user.php?create=1">
-                            <input type="submit" class="btn btn-success btn-round" name="add_user" value="Add"/>
+                            <input type="submit" class="btn btn-success btn-round" name="add_user" value="Add Admin"/>
                         </a>
                     </div>
                 </div>
@@ -204,10 +204,6 @@
                         Phone
                       </th>
                       <th>
-                        isAdmin
-                      </th>
-                      <!--<th class="text-right">-->
-                      <th>
                         Action
                       </th>
                     </thead>
@@ -216,10 +212,14 @@
                           while ($user = $users->fetch_assoc()) {
                               echo '<tr>';
                               echo '<td>'.$user['id'].'</td>';
-                              echo '<td>'.$user['name'].'</td>';
+                              echo '<td>';
+                              if ($user['isAdmin']){
+                                echo '<i class="nc-icon nc-hat-3"></i> ';
+                                echo '<div style="display: none;">admin</div>';
+                              }
+                              echo $user['name'].'</td>';
                               echo '<td>'.$user['email'].'</td>';
                               echo '<td>'.$user['phone'].'</td>';
-                              echo '<td>'.$user['isAdmin'].'</td>';
                               echo "<td><a href=\"user.php?id=$user[id]\" class=\"btn btn-primary btn-round\"><i class=\"nc-icon nc-settings\"></i></a></td>";
                               echo '</tr>';
                           }
@@ -295,7 +295,7 @@
       if(window.location.hash == '#updateSuccess'){
         showNotification('top', 'center', 'success', 'User updated successfully')
       } else if(window.location.hash == '#createSuccess'){
-        showNotification('top', 'center', 'success', 'User created successfully')
+        showNotification('top', 'center', 'success', 'Admin created successfully')
       } else if(window.location.hash == '#removeSuccess'){
         showNotification('top', 'center', 'success', 'User removed successfully')
       }
