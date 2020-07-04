@@ -90,6 +90,42 @@ class Reservations {
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $user, $numPersons, $status, $createTime, $lastUpdatedByAdmin);	
 		return $this->db->query($sql);
 	}
+        public function getTotalReservationCount($status, $time_range){
+            $condition_status = 1;
+            if ($status != ""){
+                $condition_status = "(`status` = '$status')";
+            }
+            $condition_time = 1;
+            if ($time_range > 0){
+                if ($time_range == 1){
+                    $condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 WEEK) AND DATE(CURRENT_DATE()))";
+                } else if ($time_range == 2){
+                    $condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 MONTH) AND DATE(CURRENT_DATE()))";
+                } else if ($time_range == 3){
+                    $condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 YEAR) AND DATE(CURRENT_DATE()))";
+                }
+            }
+            $query = "SELECT COUNT(*) as `total` FROM `Reservations` WHERE " . $condition_status . " AND " . $condition_time;
+            $result = $this->db->query($query);
+            $total = $result->fetch_assoc()["total"];
+            return $total;
+        }
+        public function getReservationById($id){
+            $query = "SELECT * FROM `Reservations` WHERE `id` = '$id'";
+            $result = $this->db->query($query);
+            $reservation = $result->fetch_assoc();
+            return $reservation;
+        }
+        public function updateReservationById($id, $numPersons, $status, $admin_id){
+            $query = "UPDATE `Reservations` SET `numPersons`= '$numPersons', `status`= '$status', `lastUpdatedByAdmin`= '$admin_id' WHERE `id` = '$id'";
+            $result = $this->db->query($query);
+            return $result;
+        }
+        public function deleteReservationById($id){
+            $query = "DELETE FROM `Reservations` WHERE id='$id'";
+            $result = $this->db->query($query);
+            return $result;
+        }
 }
 
 class ReservationItem {
@@ -103,6 +139,16 @@ class ReservationItem {
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $reservation, $dish, $quantity);	
 		return $this->db->query($sql);
 	}
+        public function getItemsByReservationId($id){
+            $query = "SELECT * FROM `ReservationItem` WHERE `reservation` = '$id'";
+            return $this->db->query($query);
+        }
+        public function updateItemById($id, $quantity){
+            $query = "UPDATE `ReservationItem` SET `quantity`= '$quantity' WHERE `id` = '$id'";
+            echo $query;
+            $result = $this->db->query($query);
+            return $result;
+        }
 }
 
 class Dishes{
@@ -112,7 +158,7 @@ class Dishes{
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	public function createDish($name, $price, $descriptions, $status, $image, $lastUpdatedByAdmin=1){
+	public function createDish($name, $price, $descriptions, $status, $image, $lastUpdatedByAdmin){
 	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);
 	    return $this->db->query($sql);
 	}

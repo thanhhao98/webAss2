@@ -7,18 +7,33 @@
     include "../models/db.php";
     include "utils.php";
     $db = new DbBase();
+    $Reservations = new Reservations($db);
+    $ReservationItem = new ReservationItem($db);
     $Dishes = new Dishes($db);
     $admin_id = $_SESSION['userId'];
     if (isset($_GET['id'])){
-        $dishid = (int)$_GET['id'];
-        $dish = $Dishes->getDishById($dishid);
-        $dishname = $dish['name'];
-        $dishprice = $dish['price'];
-        $dishdesc = $dish['descriptions'];
-        $dishstatus = $dish['status'];
-        $dishimage = $dish['image'];
+        $reservationid = (int)$_GET['id'];
+        $reservation = $Reservations->getReservationById($reservationid);
+        $reservationtime = $reservation['createTime'];
+        $reservationstatus = $reservation['status'];
+        $reservationuser = $reservation['user'];
+        $reservationnum = $reservation['numPersons'];
+        $reservationprice = 0;
+        $items = $ReservationItem->getItemsByReservationId($reservationid);
+        $reservationitems = [];
+        while ($item = $items->fetch_assoc()) {
+            $dish = $Dishes->getDishById($item['dish']);
+            $reservationitem = [
+                "id" => $item['id'],
+                "name" => $dish['name'],
+                "price" => $dish['price'],
+                "quantity" => $item['quantity']
+            ];
+            $reservationprice += $dish['price'] * $item['quantity'];
+            array_push($reservationitems, $reservationitem);
+        }
     }
-    //echo "<script>console.log('Debug Objects: " . $dishimage . "' );</script>";
+    //echo "<script>console.log('Debug Objects: " . $reservationprice . "' );</script>";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,7 +44,7 @@
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    Admin - Dishes
+    Admin - Reservations
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -72,10 +87,16 @@
               <p>Manage Users</p>
             </a>
           </li>
-          <li class="active ">
+          <li>
             <a href="./manage_dish.php">
               <i class="nc-icon nc-tile-56"></i>
               <p>Manage Dishes</p>
+            </a>
+          </li>
+          <li class="active ">
+            <a href="./manage_reservation.php">
+              <i class="nc-icon nc-bullet-list-67"></i>
+              <p>Manage Reservations</p>
             </a>
           </li>
         </ul>
@@ -93,7 +114,7 @@
                 <span class="navbar-toggler-bar bar3"></span>
               </button>
             </div>
-            <a class="navbar-brand" href="manage_dish.php"><i class="nc-icon nc-minimal-left"></i> Back to Management</a>
+            <a class="navbar-brand" href="manage_reservation.php"><i class="nc-icon nc-minimal-left"></i> Back to Management</a>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -148,141 +169,121 @@
       <!-- End Navbar -->
       <div class="content">
         <div class="row">
-          <div class="col-md-4">
-            <div class="card card-user">
-              <div class="image">
-                <input class="img-dish" id="btnfile" type="image" src="<?php echo '../' . $dishimage; ?>" alt="Click to upload dish image preview"/>
-                <div style="display: none;">
-                  <input type="file" id="uploadfile" />
-                </div>
-              </div>
-              <p class="text-center" style="<?php if (!isset($_GET['imgName'])){ echo 'display: none;'; }?>">
-                New image: <?php echo $_GET['imgName']; ?>
-              </p>
-              <div class="card-footer" style="<?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
-                <hr>
-                <div class="button-container">
-                  <div class="row">
-                    <div class="col-lg-3 col-md-6 col-6 ml-auto">
-                      <h5>12<br><small>Orders</small></h5>
-                    </div>
-                    <div class="col-lg-4 col-md-6 col-6 ml-auto mr-auto">
-                      <h5>2/20<br><small>Popularity</small></h5>
-                    </div>
-                    <div class="col-lg-3 mr-auto">
-                      <h5>24,6$<br><small>Spent</small></h5>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-8">
+          <div class="col-md-12">
             <div class="card card-user">
               <div class="card-header row" style="padding: 0 30px;">
                 <?php
                     if (isset($_GET['create'])){
                         echo "<h5 class=\"card-title\">Create New Dish</h5>";
                     } else{
-                        echo "<h5 class=\"card-title\">Edit Dish Information</h5>";
+                        echo "<h5 class=\"card-title\">Edit Reservation Information</h5>";
                     } 
-                    if (isset($_POST['remove_dish'])){
-                        $result = $Dishes->deleteDishById($dishid);
+                    if (isset($_POST['remove_reservation'])){
+                        $result = $Reservations->deleteReservationById($reservationid);
                         if ($result){
                             echo "<script type='text/javascript'>alert('Success');</script>";
-                            redirect("manage_dish.php#removeSuccess");
+                            redirect("manage_reservation.php#removeSuccess");
                         }
                     } 
                 ?>
-                <div style="margin-left:auto; margin-right:0; <?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
+                <div style="display: none; margin-left:auto; margin-right:0; <?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
                     <form method="post">
-                        <input type="submit" class="btn btn-danger btn-round" name="remove_dish" value="Remove"/>
+                        <input type="submit" class="btn btn-danger btn-round" name="remove_reservation" value="Remove"/>
                     </form>
                 </div>
               </div>
               <div class="card-body">
                 <form method="post">
                   <?php 
-                    if (isset($_POST['update_dish'])){
-                        $dishname = $dishprice = $dishdesc = $dishstatus = "";
-                        if (isset($_GET['imgName'])){
-                            $dishimage = "images/" . $_GET['imgName'];
-                        }
-                        else if (!isset($dishimage)){
-                            $dishimage = "";
-                        }
+                    if (isset($_POST['update_reservation'])){
+                        $reservationnum = $reservationstatus = "";
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                          $dishname = test_input($_POST["name"]);
-                          $dishprice = (int)test_input($_POST["price"]);
-                          $dishdesc = test_input($_POST["desc"]);
-                          $dishstatus = (int)test_input($_POST["status"]);
+                          $reservationnum = (int)test_input($_POST["num"]);
+                          $reservationstatus = test_input($_POST["status"]);
                         }
-                        if (strlen($dishname) < 1){
-                            echo "<script type='text/javascript'>alert('Please enter name');</script>";
-                        }else {
-                            if (isset($_GET['create'])){
-                                $result = $Dishes->createDish($dishname, $dishprice, $dishdesc, $dishstatus, $dishimage, $admin_id);
-                                if ($result){
-                                    redirect("manage_dish.php#createSuccess");
-                                }
-                            } else{
-                                $result = $Dishes->updateDishById($dishid, $dishname, $dishprice, $dishdesc, $dishstatus, $dishimage, $admin_id);
-                                if ($result){
-                                    redirect("manage_dish.php#updateSuccess");
-                                }
-                            }
-                            //if ($result){
-                                //echo "<script type='text/javascript'>alert('Success');</script>";
-                                //redirect("manage_dish.php");
-                            //}
+                        $result = $Reservations->updateReservationById($reservationid, $reservationnum, $reservationstatus, $admin_id);
+                        // TODO: improve
+                        //$i = 0;
+                        //foreach ($reservationitems as $item){
+                            //$x = 'item_q' . $i;
+                            //echo "<script>console.log('Update result: " . $item['quantity'] . "' );</script>";
+                            //$ReservationItem->updateItemById($item['id'], (int)$_POST['x']); 
+                            //$i += 1;
+                        //}
+                        if ($result){
+                            redirect("manage_reservation.php#updateSuccess");
                         }
-                        //echo "<script>console.log('Update result: " . $result . "' );</script>";
+                        //echo "<script>console.log('Update result: " . $_POST["item_q1"] . "' );</script>";
                     }
                   ?>
                   <div class="row">
                     <div class="col-md-3 pr-1">
                       <div class="form-group">
                         <label>ID (disabled)</label>
-                        <input name="id" type="text" class="form-control" disabled="" placeholder="ID" value="<?php echo $dishid; ?>">
+                        <input name="id" type="text" class="form-control" disabled="" placeholder="ID" value="<?php echo $reservationid; ?>">
                       </div>
                     </div>
-                    <div class="col-md-4 px-1">
+                    <div class="col-md-4">
                       <div class="form-group">
-                        <label>Name</label>
-                        <input name="name" type="text" class="form-control" placeholder="Name" value="<?php echo $dishname; ?>">
+                        <label>Time</label>
+                        <input name="time" type="text" class="form-control" disabled="" placeholder="Time" value="<?php echo $reservationtime; ?>">
                       </div>
                     </div>
-                    <div class="col-md-2 pl-1">
+                    <div class="col-md-2 pr-1">
                       <div class="form-group">
-                        <label>Price</label>
-                        <input name="price" type="number" min="1" max="10" class="form-control" placeholder="0" value="<?php echo $dishprice; ?>">
+                        <label>Number of people</label>
+                        <input name="num" type="number" min=1 max=15 class="form-control" placeholder="1" value="<?php echo $reservationnum; ?>">
                       </div>
                     </div>
-                    <div class="col-md-3 pl-1">
+                    <div class="col-md-3">
                       <div class="form-group">
                         <label>Status</label>
                         <select name="status" class="form-control">
-                          <option value="0"<?=$dishstatus == 0 ? ' selected="selected"' : '';?>>Unavailable</option>
-                          <option value="1"<?=$dishstatus == 1 ? ' selected="selected"' : '';?>>Available</option>
+                          <option value="created"<?=$reservationstatus == "created" ? ' selected="selected"' : '';?>>Created</option>
+                          <option value="cancelled"<?=$reservationstatus == "cancelled" ? ' selected="selected"' : '';?>>Cancelled</option>
+                          <option value="accepted"<?=$reservationstatus == "accepted" ? ' selected="selected"' : '';?>>Accepted</option>
+                          <option value="denied"<?=$reservationstatus == "denied" ? ' selected="selected"' : '';?>>Denied</option>
+                          <option value="done"<?=$reservationstatus == "done" ? ' selected="selected"' : '';?>>Done</option>
                         </select>
                       </div>
                     </div>
                   </div>
-                  <div class="row">
-                    <div class="col-md-12">
-                      <div class="form-group">
-                        <label>Description</label>
-                        <input name="desc" type="text" class="form-control" placeholder="Description" value="<?php echo $dishdesc; ?>">
-                      </div>
-                    </div>
-                  </div>
+                  <?php
+                  $i = 0;
+                  foreach ($reservationitems as $item){
+                      echo '<div class="row">';
+                          echo '<div class="col-md-3 pr-1 form-group">';
+                            echo '<label>Dish Name</label>';
+                            echo '<input type="text" disabled="" class="form-control" value="'; echo $item['name']; echo '">';
+                          echo "</div>";
+                          echo '<div class="col-md-2 pr-1 form-group">';
+                            echo '<label>Price</label>';
+                            echo '<input type="number" disabled="" class="form-control" value="'; echo $item['price']; echo '">';
+                          echo "</div>";
+                          echo '<div class="col-md-2 form-group">';
+                            echo '<label>Quantity</label>';
+                          echo '<input type="number" min="1" max="15" class="form-control" name="item_q';
+                          echo $i;
+                          echo '" value="'; 
+                          echo $item['quantity']; echo '">';
+                          echo "</div>";
+                          if ($i == 0){
+                              echo '<div class="col-md-5 form-group">';
+                                echo '<label>Table</label>';
+                                echo '<input type="number" disabled="" min="1" max="15" class="form-control" value="0">';
+                              echo "</div>";
+                          }
+                      echo "</div>";
+                      $i += 1;
+                  }
+                  ?>
                   <div class="row">
                     <div class="update ml-auto mr-auto">
                       <?php
                         if (isset($_GET['create'])){
-                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_dish\" value=\"Create Dish\"/>";
+                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_reservation\" value=\"Create reservation\"/>";
                         } else{
-                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_dish\" value=\"Update Dish Info\"/>";
+                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_reservation\" value=\"Update Reservation Info\"/>";
                         } 
                       ?>
                     </div>
