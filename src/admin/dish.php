@@ -28,7 +28,7 @@
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    Paper Dashboard 2 by Creative Tim
+    Admin - Dishes
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -251,16 +251,19 @@
                         <input name="name" type="text" class="form-control" placeholder="Name" value="<?php echo $dishname; ?>">
                       </div>
                     </div>
-                    <div class="col-md-3 pl-1">
-                      <div class="form-group">
-                        <label>Price</label>
-                        <input name="price" type="number" class="form-control" placeholder="0" value="<?php echo $dishprice; ?>">
-                      </div>
-                    </div>
                     <div class="col-md-2 pl-1">
                       <div class="form-group">
+                        <label>Price</label>
+                        <input name="price" type="number" min="1" max="10" class="form-control" placeholder="0" value="<?php echo $dishprice; ?>">
+                      </div>
+                    </div>
+                    <div class="col-md-3 pl-1">
+                      <div class="form-group">
                         <label>Status</label>
-                        <input name="status" type="number" class="form-control" placeholder="0" value="<?php echo $dishstatus; ?>">
+                        <select name="status" class="form-control">
+                          <option value="0"<?=$dishstatus == 0 ? ' selected="selected"' : '';?>>Unavailable</option>
+                          <option value="1"<?=$dishstatus == 1 ? ' selected="selected"' : '';?>>Available</option>
+                        </select>
                       </div>
                     </div>
                   </div>

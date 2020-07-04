@@ -113,8 +113,21 @@ class Dishes{
 	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);
 	    return $this->db->query($sql);
 	}
-        public function getTotalDishCount(){
-            $query = "SELECT COUNT(*) as `total` FROM `Dishes`"; 
+        public function getTotalDishCount($status, $price_range){
+            $condition_status = 1;
+            if ($status > -1){
+                $condition_status = "(`status` = '$status')";
+            }
+            $condition_price = 1;
+            if ($price_range > 0){
+                $low = $price_range;
+                $high = $price_range + 2;
+                if ($low == 4){
+                    $high += 1;
+                }
+                $condition_price = "(`price` BETWEEN '$low' AND '$high')";
+            }
+            $query = "SELECT COUNT(*) as `total` FROM `Dishes` WHERE " . $condition_status . " AND " .$condition_price; 
             $result = $this->db->query($query);
             $total = $result->fetch_assoc()["total"];
             return $total;

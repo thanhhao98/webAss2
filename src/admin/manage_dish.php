@@ -5,11 +5,15 @@
         exit;
     }
     include ("../models/db.php");
+    // Filter
+    (isset($_GET["dish_status"])) ? $dish_status = $_GET["dish_status"] : $dish_status=-1;
+    (isset($_GET["dish_price_range"])) ? $dish_price_range = $_GET["dish_price_range"] : $dish_price_range=0;
+    //echo "<script>console.log('1: " . $dish_status . "' );</script>";
+    // Get dishes
     $db = New DbBase();
     $Dishes = new Dishes($db);
-    $total = $Dishes->getTotalDishCount();
+    $total = $Dishes->getTotalDishCount($dish_status, $dish_price_range);
     (isset($_GET["num_per_page"])) ? $num_per_page = $_GET["num_per_page"] : $num_per_page=5;
-    //echo "<script>console.log('Debug Objects: " . $_GET["num_per_page"] . "' );</script>";
     $total_pages = ceil($total / $num_per_page);
     // Check that the page number is set.
     if(!isset($_GET['page'])){
@@ -21,7 +25,21 @@
     // Calculate the starting number
     $start_idx = ($_GET['page'] - 1) * $num_per_page;
     // SQL Query
-    $query = 'SELECT * FROM `Dishes` LIMIT ' . $start_idx . ', ' . $num_per_page;
+    $condition_status = 1;
+    if ($dish_status > -1){
+        $condition_status = "(`status` = $dish_status)";
+    }
+    $condition_price = 1;
+    if ($dish_price_range > 0){
+        $low = $dish_price_range;
+        $high = $dish_price_range + 2;
+        if ($low == 4){
+            $high += 1;
+        }
+        $condition_price = "(`price` BETWEEN $low AND $high)";
+    }
+    $query = 'SELECT * FROM `Dishes` WHERE ' . $condition_status . ' AND ' . $condition_price . ' LIMIT ' . $start_idx . ', ' . $num_per_page;
+    //echo "<script>console.log('2: " . $query . "' );</script>";
     $dishes = $db->query($query);
 ?>
 <!DOCTYPE html>
@@ -197,7 +215,14 @@
                               echo '<td>'.$dish['name'].'</td>';
                               echo '<td>'.$dish['descriptions'].'</td>';
                               echo '<td>'.$dish['price'].'</td>';
-                              echo '<td>'.$dish['status'].'</td>';
+                              echo '<td>';
+                              if ($dish['status'] == 1){
+                                  echo 'Available';
+                              }
+                              else {
+                                  echo 'Unavailable';
+                              }
+                              echo '</td>';
                               echo "<td><a href=\"dish.php?id=$dish[id]\" class=\"btn btn-primary btn-round\"><i class=\"nc-icon nc-settings\"></i></a></td>";
                               echo '</tr>';
                           }
@@ -208,32 +233,43 @@
               </div>
             </div>
             <div class="row ">
-                <div class="pagination text-right col-md-9">
+                <div class="pagination text-right col-md-6">
                   <?php
                       $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
-                      echo '<a href="?page=' . $prev_page . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
+                      echo '<a href="?page=' . $prev_page . '&dish_status=' . $dish_status . '&dish_price_range=' . $dish_price_range . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
                         foreach(range(1, $total_pages) as $page){
                             // Check if we're on the current page in the loop
                             if($page == $_GET['page']){
                                 echo '<a class="active">' . $page . '</a>';
                             }else if($page == 1 || $page == $total_pages || ($page >= $_GET['page'] - 5 && $page <= $_GET['page'] + 5)){
-                                echo '<a href="?page=' . $page .  '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
+                                echo '<a href="?page=' . $page . '&dish_status=' . $dish_status . '&dish_price_range=' . $dish_price_range . '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
                             }
                         }
                       $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
-                      echo '<a href="?page=' . $next_page . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
+                      echo '<a href="?page=' . $next_page . '&dish_status=' . $dish_status . '&dish_price_range=' . $dish_price_range . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
                   ?>
                 </div>
-                <div class="col-md-3">
-                    <form method="get">
-                      <select name="num_per_page">
+                <div class="col-md-6">
+                    <form method="get" class="row">
+                      <select name="dish_price_range" class="form-control" style="width: auto;">
+                        <option value="0"<?=$dish_price_range == 0 ? ' selected="selected"' : '';?>>Price: All</option>
+                        <option value="1"<?=$dish_price_range == 1 ? ' selected="selected"' : '';?>>Price: 1-3</option>
+                        <option value="4"<?=$dish_price_range == 4 ? ' selected="selected"' : '';?>>Price: 4-7</option>
+                        <option value="8"<?=$dish_price_range == 8 ? ' selected="selected"' : '';?>>Price: 8-10</option>
+                      </select>
+                      <select name="dish_status" class="form-control" style="width: auto;">
+                        <option value="-1"<?=$dish_status == -1 ? ' selected="selected"' : '';?>>Status: All</option>
+                        <option value="1"<?=$dish_status == 1 ? ' selected="selected"' : '';?>>Status: Available</option>
+                        <option value="0"<?=$dish_status == 0 ? ' selected="selected"' : '';?>>Status: Unavailable</option>
+                      </select>
+                      <select name="num_per_page" class="form-control" style="width: auto;">
                         <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5 entries</option>
                         <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10 entries</option>
                         <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25 entries</option>
                         <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50 entries</option>
                         <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100 entries</option>
                       </select>
-                      <input type="submit" name="submit" value="Filter"/>
+                      <input type="submit" name="submit" style="width: auto;" value="Filter"/>
                     </form>
                 </div>
             </div>
