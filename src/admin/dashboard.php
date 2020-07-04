@@ -75,6 +75,12 @@
               <p>Manage Dishes</p>
             </a>
           </li>
+          <li>
+            <a href="./manage_reservation.php">
+              <i class="nc-icon nc-bullet-list-67"></i>
+              <p>Manage Reservations</p>
+            </a>
+          </li>
         </ul>
       </div>
     </div>
