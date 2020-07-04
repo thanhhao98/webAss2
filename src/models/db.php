@@ -64,6 +64,9 @@ class Users {
 		$user = $result->fetch_assoc();
 		return $user;
 	}
+	public function getUsernameById($id){
+		return $this->getUserById($id)['name'];
+	}
 	public function updateUserById($id, $name, $email, $phone, $password){
 		$query = "UPDATE `Users` SET `name`= '$name', `email`= '$email', `phone`= '$phone', `password`= '$password' WHERE `id` = '$id'";
 		$result = $this->db->query($query);
@@ -113,41 +116,57 @@ class Dishes{
 	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);
 	    return $this->db->query($sql);
 	}
-        public function getTotalDishCount($status, $price_range){
-            $condition_status = 1;
-            if ($status > -1){
-                $condition_status = "(`status` = '$status')";
-            }
-            $condition_price = 1;
-            if ($price_range > 0){
-                $low = $price_range;
-                $high = $price_range + 2;
-                if ($low == 4){
-                    $high += 1;
-                }
-                $condition_price = "(`price` BETWEEN '$low' AND '$high')";
-            }
-            $query = "SELECT COUNT(*) as `total` FROM `Dishes` WHERE " . $condition_status . " AND " .$condition_price; 
-            $result = $this->db->query($query);
-            $total = $result->fetch_assoc()["total"];
-            return $total;
-        }
-        public function getDishById($id){
-            $query = "SELECT * FROM `Dishes` WHERE `id` = '$id'";
-            $result = $this->db->query($query);
-            $dish = $result->fetch_assoc();
-            return $dish;
-        }
-        public function updateDishById($id, $name, $price, $description, $status, $image){
-            $query = "UPDATE `Dishes` SET `name`= '$name', `price`= '$price', `descriptions`= '$description', `status`= '$status', `image`= '$image' WHERE `id` = '$id'";
-            $result = $this->db->query($query);
-            return $result;
-        }
-        public function deleteDishById($id){
-            $query = "DELETE FROM `Dishes` WHERE id='$id'";
-            $result = $this->db->query($query);
-            return $result;
-        }
+	public function getTotalDishCount($status, $price_range){
+		$condition_status = 1;
+		if ($status > -1){
+			$condition_status = "(`status` = '$status')";
+		}
+		$condition_price = 1;
+		if ($price_range > 0){
+			$low = $price_range;
+			$high = $price_range + 2;
+			if ($low == 4){
+				$high += 1;
+			}
+			$condition_price = "(`price` BETWEEN '$low' AND '$high')";
+		}
+		$query = "SELECT COUNT(*) as `total` FROM `Dishes` WHERE " . $condition_status . " AND " .$condition_price; 
+		$result = $this->db->query($query);
+		$total = $result->fetch_assoc()["total"];
+		return $total;
+	}
+	public function getDishById($id){
+		$query = "SELECT * FROM `Dishes` WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		$dish = $result->fetch_assoc();
+		return $dish;
+	}
+	public function getAllDishesIsShow($topK=10){
+		$query = "SELECT * FROM `Dishes` WHERE `onShow`='1'";
+		$result = $this->db->query($query);
+		$dishes = array(); 
+		$index = 0;
+		if($result->num_rows >0){
+			while($row= $result->fetch_assoc()){
+				$index +=1;
+				array_push($dishes,$row);
+				if($index>$topK){
+					break;
+				}
+			}
+		}
+		return $dishes;
+	}
+	public function updateDishById($id, $name, $price, $description, $status, $image){
+		$query = "UPDATE `Dishes` SET `name`= '$name', `price`= '$price', `descriptions`= '$description', `status`= '$status', `image`= '$image' WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		return $result;
+	}
+	public function deleteDishById($id){
+		$query = "DELETE FROM `Dishes` WHERE id='$id'";
+		$result = $this->db->query($query);
+		return $result;
+	}
 }
 
 class Comments{
@@ -160,6 +179,28 @@ class Comments{
 	public function createComment($user, $content, $createTime, $visibility, $lastUpdatedByAdmin){
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $user, $content, $createTime, $visibility, $lastUpdatedByAdmin);	
 		return $this->db->query($sql);
+	}
+	public function getCommentVisibles($topK=10){
+		$db = new DbBase();
+		$Users = new Users($db); 
+		$query = "SELECT * FROM `Comments` WHERE `visibility`='1'";
+		$result = $this->db->query($query);
+		$comments = array(); 
+		$index = 0;
+		if($result->num_rows >0){
+			while($row= $result->fetch_assoc()){
+				$index +=1;
+				$idUser = $row['user'];
+				$name = $Users->getUsernameById($idUser);
+				$comment = $row['content'];
+				$item = array('name' => $name, 'content' => $comment);
+				array_push($comments,$item);
+				if($index>$topK){
+					break;
+				}
+			}
+		}
+		return $comments;
 	}
 }
 

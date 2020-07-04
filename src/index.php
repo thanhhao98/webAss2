@@ -1,10 +1,18 @@
 <?
 include('./auth/auth.php');
+include('./utils/utils.php');
+include('./models/db.php');
+$db = new DbBase();
+$Dishes = new Dishes($db);
+$Comments = new Comments($db);
 $role = getRole();
 $username = '';
 if ($role != 'unknown'){
 	$username = $_SESSION['userInfo']['username'];
 }
+$dishes = $Dishes->getAllDishesIsShow(5);
+$commennts = $Comments->getCommentVisibles(5);
+echo json_encode($commennts);
 ?>
 <!doctype html>
 <html lang="en">
@@ -220,80 +228,17 @@ if ($role != 'unknown'){
             </div>
             <div class="row justify-content-center">
               <div class="col-md-8">
-                <ul class="nav site-tab-nav" id="pills-tab" role="tablist">
-                  <li class="nav-item">
-                    <a class="nav-link active" id="pills-breakfast-tab" data-toggle="pill" href="#pills-breakfast" role="tab" aria-controls="pills-breakfast" aria-selected="true">Breakfast</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="pills-lunch-tab" data-toggle="pill" href="#pills-lunch" role="tab" aria-controls="pills-lunch" aria-selected="false">Brunch</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="pills-dinner-tab" data-toggle="pill" href="#pills-dinner" role="tab" aria-controls="pills-dinner" aria-selected="false">Dinner</a>
-                  </li>
-                </ul>
                 <div class="tab-content" id="pills-tabContent">
                   <div class="tab-pane fade show active" id="pills-breakfast" role="tabpanel" aria-labelledby="pills-breakfast-tab">
-                    <div class="d-block d-md-flex menu-food-item">
-
-                      
-                      <div class="text order-1 mb-3">
-                        <img src="images/img_1.jpg" alt="Image">
-                        <h3><a href="#">Item 1</a></h3>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean.</p>
-                      </div>
-                      <div class="price order-2">
-                        <strong>$10.49</strong>
-                      </div>
-                    </div> <!-- .menu-food-item -->
-
-                    <div class="d-block d-md-flex menu-food-item">
-                      <div class="text order-1 mb-3">
-                        <img src="images/img_2.jpg" alt="Image">
-                        <h3><a href="#">Item 2</a></h3>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean.</p>
-                      </div>
-                      <div class="price order-2">
-                        <strong>$11.99</strong>
-                      </div>
-                    </div> <!-- .menu-food-item -->
-
-                    <div class="d-block d-md-flex menu-food-item">
-                      <div class="text order-1 mb-3">
-                        <img src="images/img_3.jpg" alt="Image">
-                        <h3><a href="#">Item 3</a></h3>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean.</p>
-                      </div>
-                      <div class="price order-2">
-                        <strong>$11.99</strong>
-                      </div>
-                    </div> <!-- .menu-food-item -->
-
-                    <div class="d-block d-md-flex menu-food-item">
-                      <div class="text order-1 mb-3">
-                        <img src="images/img_1.jpg" alt="Image">
-                        <h3><a href="#">Item 4</a></h3>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean.</p>
-                      </div>
-                      <div class="price order-2">
-                        <strong>$13.99</strong>
-                      </div>
-                    </div> <!-- .menu-food-item -->
-
-
+					<?php
+						foreach($dishes as $dish){
+							echo menuItem($dish['name'],$dish['descriptions'],$dish['price'], $dish['image']);
+						}
+					?>
                   </div>
                   <div class="tab-pane fade" id="pills-lunch" role="tabpanel" aria-labelledby="pills-lunch-tab">
                     
-                    <div class="d-block d-md-flex menu-food-item">
-                      <div class="text order-1 mb-3">
-                        <img src="images/img_2.jpg" alt="Image">
-                        <h3><a href="#">Item 5</a></h3>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean.</p>
-                      </div>
-                      <div class="price order-2">
-                        <strong>$12.49</strong>
-                      </div>
-                  </div>
-                </div>
+				   </div>
               </div>
               
             </div>
@@ -462,44 +407,11 @@ if ($role != 'unknown'){
             <div class="row justify-content-center text-center" data-aos="fade-up">
               <div class="col-md-8">
                 <div class="owl-carousel home-slider-loop-false">
-
-                
-                  <div class="item">
-                    <blockquote class="testimonial">
-                      <p>&ldquo;A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.&rdquo;</p>
-                      <div class="author">
-                        <img src="images/person_1.jpg" alt="Image placeholder" class="mb-3">
-                        <h4>Name 3</h4>
-                      </div>
-                    </blockquote>
-                  </div>
-                  <div class="item">
-                    <blockquote class="testimonial">
-                      <p>&ldquo;Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean.&rdquo;</p>
-                      <div class="author">
-                        <img src="images/person_2.jpg" alt="Image placeholder" class="mb-3">
-                        <h4>Name 1</h4>
-                      </div>
-                    </blockquote>
-                  </div>
-                  <div class="item">
-                    <blockquote class="testimonial">
-                      <p>&ldquo;Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life One day however a small line of blind text by the name of Lorem Ipsum decided to leave for the far World of Grammar.&rdquo;</p>
-                      <div class="author">
-                        <img src="images/person_3.jpg" alt="Image placeholder" class="mb-3">
-                        <h4>Name 2</h4>
-                      </div>
-                    </blockquote>
-                  </div>
-                  <div class="item">
-                    <blockquote class="testimonial">
-                      <p>&ldquo;The Big Oxmox advised her not to do so, because there were thousands of bad Commas, wild Question Marks and devious Semikoli, but the Little Blind Text didn’t listen. She packed her seven versalia, put her initial into the belt and made herself on the way.&rdquo;</p>
-                      <div class="author">
-                        <img src="images/person_2.jpg" alt="Image placeholder" class="mb-3">
-                        <h4>Name 3</h4>
-                      </div>
-                    </blockquote>
-                  </div>
+				<?php
+					foreach($commennts as $comment){
+						echo commentItem($comment['name'],$comment['content']);
+					}
+				?>
                 </div>
               </div>
             </div>
