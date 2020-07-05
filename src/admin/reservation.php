@@ -10,6 +10,7 @@
     $Reservations = new Reservations($db);
     $ReservationItem = new ReservationItem($db);
     $Dishes = new Dishes($db);
+    $Tables = new Tables($db);
     $admin_id = $_SESSION['userId'];
     if (isset($_GET['id'])){
         $reservationid = (int)$_GET['id'];
@@ -19,6 +20,8 @@
         $reservationuser = $reservation['user'];
         $reservationnum = $reservation['numPersons'];
         $reservationprice = 0;
+        $currentTable = $Tables->getTableByReservationId($reservationid);
+        $availableTables = $Tables->getAvailableTables($reservationnum);
         $items = $ReservationItem->getItemsByReservationId($reservationid);
         $reservationitems = [];
         while ($item = $items->fetch_assoc()) {
@@ -26,14 +29,14 @@
             $reservationitem = [
                 "id" => $item['id'],
                 "name" => $dish['name'],
-                "price" => $dish['price'],
+                "price" => $item['price'],
                 "quantity" => $item['quantity']
             ];
-            $reservationprice += $dish['price'] * $item['quantity'];
+            $reservationprice += $item['price'] * $item['quantity'];
             array_push($reservationitems, $reservationitem);
         }
     }
-    //echo "<script>console.log('Debug Objects: " . $reservationprice . "' );</script>";
+    //echo "<script>console.log('Debug Objects: " . $availableTables->fetch_assoc() . "' );</script>";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -66,7 +69,7 @@
           </div>
           <!-- <p>CT</p> -->
         </a>
-        <a href="#" class="simple-text logo-normal">
+        <a href="../.." class="simple-text logo-normal">
           HOME
           <!-- <div class="logo-image-big">
             <img src="assets/img/logo-big.png">
@@ -201,31 +204,64 @@
                           $reservationnum = (int)test_input($_POST["num"]);
                           $reservationstatus = test_input($_POST["status"]);
                         }
-                        $result = $Reservations->updateReservationById($reservationid, $reservationnum, $reservationstatus, $admin_id);
+                        # Update table
+                        $result_table = true;
+                        $selected_table_id = $_POST['table_select'];
+                        $selected_table = $Tables->getTableById($selected_table_id);
+                        $startTime = new DateTime($_POST['startTime']);
+                        $startTime = $startTime->format('Y-m-d H:i:s');
+                        $endTime = new DateTime($_POST['endTime']);
+                        $endTime = $endTime->format('Y-m-d H:i:s');
+                        $chosenStartTime = $currentTable['startReser'];
+                        $chosenEndTime = $currentTable['lastReser'];
+                        $timeChanged = false;
+                        if (($chosenStartTime != $startTime) || ($chosenEndTime != $endTime)){
+                            $timeChanged = true;
+                            $chosenStartTime = $startTime;
+                            $chosenEndTime = $endTime;
+                        }
+                        if ($reservationnum > $selected_table['quantity']){
+                            echo "<script type='text/javascript'>alert('Please choose larger table');</script>";
+                        } else if ($chosenStartTime > $chosenEndTime){
+                            echo "<script type='text/javascript'>alert('Please choose sensible time');</script>";
+                        } else if (($selected_table_id != $currentTable['id']) || $timeChanged){
+                            $result_2 = $Tables->UpdateTableById($currentTable['id'], $currentTable['quantity'], 1, NULL, NULL, NULL, $admin_id);
+                            $result_1 = $Tables->UpdateTableById($selected_table_id, $selected_table['quantity'], 0, $chosenStartTime, $chosenEndTime, $currentTable['reservation'], $admin_id);
+                            $result_table = $result_1 && $result_2;
+                            //echo "<script>console.log('1: " . $result_table . "' );</script>";
+                        }
+                        // Update item quantity
                         // TODO: improve
-                        //$i = 0;
-                        //foreach ($reservationitems as $item){
-                            //$x = 'item_q' . $i;
-                            //echo "<script>console.log('Update result: " . $item['quantity'] . "' );</script>";
-                            //$ReservationItem->updateItemById($item['id'], (int)$_POST['x']); 
-                            //$i += 1;
-                        //}
-                        if ($result){
+                        $i = 0;
+                        foreach ($reservationitems as $item){
+                            $x = 'item_q' . $i;
+                            $ReservationItem->updateItemById($item['id'], (int)$_POST[$x]); 
+                            $i += 1;
+                        }
+                        # Update reservation
+                        $result_reservation = $Reservations->updateReservationById($reservationid, $reservationnum, $reservationstatus, $admin_id);
+                        # Redirect
+                        if ($result_table && $result_reservation){
                             redirect("manage_reservation.php#updateSuccess");
                         }
-                        //echo "<script>console.log('Update result: " . $_POST["item_q1"] . "' );</script>";
                     }
                   ?>
                   <div class="row">
-                    <div class="col-md-3 pr-1">
+                    <div class="col-md-2 pr-1">
                       <div class="form-group">
-                        <label>ID (disabled)</label>
+                        <label>ID</label>
                         <input name="id" type="text" class="form-control" disabled="" placeholder="ID" value="<?php echo $reservationid; ?>">
                       </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2 pr-1">
                       <div class="form-group">
-                        <label>Time</label>
+                        <label>Total Price</label>
+                        <input name="id" type="text" class="form-control" disabled="" placeholder="ID" value="<?php echo $reservationprice; ?>">
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label>Time created</label>
                         <input name="time" type="text" class="form-control" disabled="" placeholder="Time" value="<?php echo $reservationtime; ?>">
                       </div>
                     </div>
@@ -249,10 +285,35 @@
                     </div>
                   </div>
                   <?php
+                  echo '<div class="row">';
+                      echo '<div class="col-md-4 pr-1 form-group">';
+                        echo '<label>Table</label>';
+                        echo '<select class="form-control" name="table_select">';
+                        echo '<option value="'; echo $currentTable['id']; echo '">';
+                        echo $currentTable['id']; echo ' - For '; echo $currentTable['quantity']; echo ' person(s) max';
+                        echo "</option>";
+                        while ($table = $availableTables->fetch_assoc()){
+                            echo '<option value="'; echo $table['id']; echo '">';
+                            echo $table['id']; echo ' - For '; echo $table['quantity']; echo ' person(s) max';
+                            echo '</option>';
+                        }
+                        echo '</select>';
+                      echo "</div>";
+                      echo '<div class="col-md-4 form-group">';
+                        echo '<label>Start time</label>';
+                        $time = new DateTime($currentTable['startReser']);
+                        echo '<input name="startTime" type="datetime-local" class="form-control" value="'; echo $time->format('Y-m-d\TH:i'); echo '">';
+                      echo "</div>";
+                      echo '<div class="col-md-4 form-group">';
+                        echo '<label>End time</label>';
+                        $time = new DateTime($currentTable['lastReser']);
+                        echo '<input name="endTime" type="datetime-local" class="form-control" value="'; echo $time->format('Y-m-d\TH:i'); echo '">';
+                      echo "</div>";
+                  echo "</div>";
                   $i = 0;
                   foreach ($reservationitems as $item){
                       echo '<div class="row">';
-                          echo '<div class="col-md-3 pr-1 form-group">';
+                          echo '<div class="col-md-4 pr-1 form-group">';
                             echo '<label>Dish Name</label>';
                             echo '<input type="text" disabled="" class="form-control" value="'; echo $item['name']; echo '">';
                           echo "</div>";
@@ -262,17 +323,26 @@
                           echo "</div>";
                           echo '<div class="col-md-2 form-group">';
                             echo '<label>Quantity</label>';
-                          echo '<input type="number" min="1" max="15" class="form-control" name="item_q';
+                          echo '<input type="number" min="1" max="100" class="form-control" name="item_q';
                           echo $i;
                           echo '" value="'; 
                           echo $item['quantity']; echo '">';
                           echo "</div>";
-                          if ($i == 0){
-                              echo '<div class="col-md-5 form-group">';
-                                echo '<label>Table</label>';
-                                echo '<input type="number" disabled="" min="1" max="15" class="form-control" value="0">';
-                              echo "</div>";
-                          }
+                          //if ($i == 0){
+                              //echo '<div class="col-md-5 form-group">';
+                                //echo '<label>Table</label>';
+                                //echo '<select class="form-control" name="table_select">';
+                                //echo '<option value="'; echo $currentTable['id']; echo '">';
+                                //echo $currentTable['id']; echo ' - For '; echo $currentTable['quantity']; echo ' person(s) max';
+                                //echo "</option>";
+                                //while ($table = $availableTables->fetch_assoc()){
+                                    //echo '<option value="'; echo $table['id']; echo '">';
+                                    //echo $table['id']; echo ' - For '; echo $table['quantity']; echo ' person(s) max';
+                                    //echo '</option>';
+                                //}
+                                //echo '</select>';
+                              //echo "</div>";
+                          //}
                       echo "</div>";
                       $i += 1;
                   }
