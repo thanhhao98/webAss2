@@ -5,14 +5,16 @@ include('./models/db.php');
 $db = new DbBase();
 $Dishes = new Dishes($db);
 $Comments = new Comments($db);
+$Infos = new Infos($db);
 $role = getRole();
 $username = '';
 if ($role != 'unknown'){
 	$username = $_SESSION['userInfo']['username'];
 }
+$about = $Infos->getAbout();
+$contact= $Infos->getContact();
 $dishes = $Dishes->getAllDishesIsShow(5);
 $commennts = $Comments->getCommentVisibles(5);
-echo json_encode($commennts);
 ?>
 <!doctype html>
 <html lang="en">
@@ -34,6 +36,74 @@ echo json_encode($commennts);
 
 	<link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/newVer.css">
+	<style>
+		.open-button {
+		  background-color: #555;
+		  color: white;
+		  padding: 16px 20px;
+		  border: none;
+		  cursor: pointer;
+		  opacity: 0.8;
+		  position: fixed;
+		  bottom: 23px;
+		  right: 28px;
+		  width: 280px;
+		}
+
+		/* The popup form - hidden by default */
+		.form-popup {
+		  display: none;
+		  position: fixed;
+		  bottom: 0;
+		  right: 0;
+		  border: 2px solid #a1a1a1;
+		  z-index: 9;
+		}
+
+		/* Add styles to the form container */
+		.form-container {
+		  max-width: 300px;
+		  padding: 10px;
+		  background-color: white;
+		}
+
+		/* Full-width input fields */
+		.form-container input[type=text], .form-container input[type=password] {
+		  width: 100%;
+		  padding: 15px;
+		  margin: 5px 0 22px 0;
+		  border: none;
+		  background: #f1f1f1;
+		}
+
+		/* When the inputs get focus, do something */
+		.form-container input[type=text]:focus, .form-container input[type=password]:focus {
+		  background-color: #ddd;
+		  outline: none;
+		}
+
+		/* Set a style for the submit/login button */
+		.form-container .btn {
+		  background-color: #4CAF50;
+		  color: white;
+		  padding: 16px 20px;
+		  border: none;
+		  cursor: pointer;
+		  width: 100%;
+		  margin-bottom:10px;
+		  opacity: 0.8;
+		}
+
+		/* Add a red background color to the cancel button */
+		.form-container .cancel {
+		  background-color: red;
+		}
+
+		/* Add some hover effects to buttons */
+		.form-container .btn:hover, .open-button:hover {
+		  opacity: 1;
+		}
+	</style>
 
 	  </head>
 	  <body class="bg-light">
@@ -59,12 +129,18 @@ echo json_encode($commennts);
 			<div class="navAbsolute">
 				<?php
 				if($role == 'unknown'){
-					echo "<a href='auth/login.php'><button class='btnLogin'>Login</button></a>";
+					echo "<button onclick='openForm()' class='btnLogin'>Login</button>";
+					//echo "<a href='auth/login.php'><button class='btnLogin'>Login</button></a>";
 				}else {
 					echo "<a href='auth/logout.php'><button class='btnLogout'>Logout</button></a>";
 				}
 				?>
 			</div>
+				<?php
+				if($role == 'unknown'){
+					echo loginForm();
+				}
+				?>
 		  </nav>
 
 		  <header class="site-header ">
@@ -336,27 +412,33 @@ echo json_encode($commennts);
               <div class="col-md-10 p-5 form-wrap">
                 <form action="#">
                   <div class="row mb-4">
-                    <div class="form-group col-md-4">
-                      <label for="name" class="label">Name</label>
-                      <div class="form-field-icon-wrap">
-                        <span class="icon ion-android-person"></span>
-                        <input type="text" class="form-control" id="name">
-                      </div>
-                    </div>
-                    <div class="form-group col-md-4">
-                      <label for="email" class="label">Email</label>
-                      <div class="form-field-icon-wrap">
-                        <span class="icon ion-email"></span>
-                        <input type="email" class="form-control" id="email">
-                      </div>
-                    </div>
-                    <div class="form-group col-md-4">
-                      <label for="phone" class="label">Phone</label>
-                      <div class="form-field-icon-wrap">
-                        <span class="icon ion-android-call"></span>
-                        <input type="text" class="form-control" id="phone">
-                      </div>
-                    </div>
+					
+					<?php
+					if ($role == 'unknown'){
+						echo '
+							<div class="form-group col-md-4">
+							  <label for="name" class="label">Name</label>
+							  <div class="form-field-icon-wrap">
+								<span class="icon ion-android-person"></span>
+								<input type="text" class="form-control" id="name">
+							  </div>
+							</div>
+							<div class="form-group col-md-4">
+							  <label for="email" class="label">Email</label>
+							  <div class="form-field-icon-wrap">
+								<span class="icon ion-email"></span>
+								<input type="email" class="form-control" id="email">
+							  </div>
+							</div>
+							<div class="form-group col-md-4">
+							  <label for="phone" class="label">Phone</label>
+							  <div class="form-field-icon-wrap">
+								<span class="icon ion-android-call"></span>
+								<input type="text" class="form-control" id="phone">
+							  </div>
+							</div>';
+					}
+					?>
 
                     <div class="form-group col-md-4">
                       <label for="persons" class="label">Number of Persons</label>
@@ -402,6 +484,8 @@ echo json_encode($commennts);
             <div class="row section-heading justify-content-center mb-5">
               <div class="col-md-8 text-center">
                 <h2 class="heading mb-3">Customer Reviews</h2>
+				<p><a href="#">Write your review</a></p>
+				<p style="font-size: 15px">(Login required)</p>
               </div>
             </div>
             <div class="row justify-content-center text-center" data-aos="fade-up">
@@ -414,31 +498,27 @@ echo json_encode($commennts);
 				?>
                 </div>
               </div>
+	
             </div>
           </div>  
         </div> <!-- .section -->
-
-        <div class="map-wrap" id="map"  data-aos="fade"></div>
-
 
         <footer class="ftco-footer">
           <div class="container">
             
             <div class="row">
-            <div class="col-md-4 mb-5">
+			<div class="col-md-4 mb-5">
               <div class="footer-widget">
                 <h3 class="mb-4">About Restaurant</h3>
-                <p>Copy Writers ambushed her, made her drunk with Longe and Parole and dragged her into their agency, where they abused her for their projects again and again. And if she hasn’t been rewritten, then they are still using her.</p>
+				<p><?php echo $about ?></p>
                 
                 <p><a href="#" class="btn btn-primary btn-outline-primary">Read More</a></p>
               </div>
             </div>
             <div class="col-md-4 mb-5">
               <div class="footer-widget">
-                <h3 class="mb-4">Lunch Service</h3>
-                <p>Booking from 12:00pm &mdash; 1:30pm</p>
                 <h3 class="mb-4">Dinner Service</h3>
-                <p>Everyday: <br> Booking from 6:00pm &mdash; 9:00pm</p>
+				<p><?php echo $contact ?></p>
               </div>
             </div>
 
@@ -460,6 +540,13 @@ echo json_encode($commennts);
     </div>
 
 		<script>
+			function openForm() {
+			  document.getElementById("myForm").style.display = "block";
+			}
+
+			function closeForm() {
+			  document.getElementById("myForm").style.display = "none";
+			}
 			var slideIndex = 1;
 			showDivs(slideIndex);
 			

@@ -26,4 +26,21 @@ function commentItem($name, $content){
 	return sprintf($item, $content, $name);
 }
 
+function loginForm(){
+	echo '<div class="form-popup" id="myForm">
+		  <form method="POST" action="auth/l.php" class="form-container">
+			<h3 style="text-align: center;">Login</h3>
+
+			<label for="email"><b>Email</b></label>
+			<input type="text" placeholder="Enter Email" name="email" required>
+
+			<label for="psw"><b>Password</b></label>
+			<input type="password" placeholder="Enter Password" name="password" required>
+
+            <p style="font-size: 15px; text-align: center">Do not have an account?<br> <a href="auth/register.php">Sign up now</a>.</p>
+			<button type="submit" class="btn">Login</button>
+			<button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+		  </form>
+		</div>';
+}
 ?>
