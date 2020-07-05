@@ -5,14 +5,16 @@ include('./models/db.php');
 $db = new DbBase();
 $Dishes = new Dishes($db);
 $Comments = new Comments($db);
+$Infos = new Infos($db);
 $role = getRole();
 $username = '';
 if ($role != 'unknown'){
 	$username = $_SESSION['userInfo']['username'];
 }
+$about = $Infos->getAbout();
+$contact= $Infos->getContact();
 $dishes = $Dishes->getAllDishesIsShow(5);
 $commennts = $Comments->getCommentVisibles(5);
-echo json_encode($commennts);
 ?>
 <!doctype html>
 <html lang="en">
@@ -336,27 +338,33 @@ echo json_encode($commennts);
               <div class="col-md-10 p-5 form-wrap">
                 <form action="#">
                   <div class="row mb-4">
-                    <div class="form-group col-md-4">
-                      <label for="name" class="label">Name</label>
-                      <div class="form-field-icon-wrap">
-                        <span class="icon ion-android-person"></span>
-                        <input type="text" class="form-control" id="name">
-                      </div>
-                    </div>
-                    <div class="form-group col-md-4">
-                      <label for="email" class="label">Email</label>
-                      <div class="form-field-icon-wrap">
-                        <span class="icon ion-email"></span>
-                        <input type="email" class="form-control" id="email">
-                      </div>
-                    </div>
-                    <div class="form-group col-md-4">
-                      <label for="phone" class="label">Phone</label>
-                      <div class="form-field-icon-wrap">
-                        <span class="icon ion-android-call"></span>
-                        <input type="text" class="form-control" id="phone">
-                      </div>
-                    </div>
+					
+					<?php
+					if ($role == 'unknown'){
+						echo '
+							<div class="form-group col-md-4">
+							  <label for="name" class="label">Name</label>
+							  <div class="form-field-icon-wrap">
+								<span class="icon ion-android-person"></span>
+								<input type="text" class="form-control" id="name">
+							  </div>
+							</div>
+							<div class="form-group col-md-4">
+							  <label for="email" class="label">Email</label>
+							  <div class="form-field-icon-wrap">
+								<span class="icon ion-email"></span>
+								<input type="email" class="form-control" id="email">
+							  </div>
+							</div>
+							<div class="form-group col-md-4">
+							  <label for="phone" class="label">Phone</label>
+							  <div class="form-field-icon-wrap">
+								<span class="icon ion-android-call"></span>
+								<input type="text" class="form-control" id="phone">
+							  </div>
+							</div>';
+					}
+					?>
 
                     <div class="form-group col-md-4">
                       <label for="persons" class="label">Number of Persons</label>
@@ -402,6 +410,8 @@ echo json_encode($commennts);
             <div class="row section-heading justify-content-center mb-5">
               <div class="col-md-8 text-center">
                 <h2 class="heading mb-3">Customer Reviews</h2>
+				<p><a href="#">Write your review</a></p>
+				<p style="font-size: 15px">(Login required)</p>
               </div>
             </div>
             <div class="row justify-content-center text-center" data-aos="fade-up">
@@ -414,31 +424,27 @@ echo json_encode($commennts);
 				?>
                 </div>
               </div>
+	
             </div>
           </div>  
         </div> <!-- .section -->
-
-        <div class="map-wrap" id="map"  data-aos="fade"></div>
-
 
         <footer class="ftco-footer">
           <div class="container">
             
             <div class="row">
-            <div class="col-md-4 mb-5">
+			<div class="col-md-4 mb-5">
               <div class="footer-widget">
                 <h3 class="mb-4">About Restaurant</h3>
-                <p>Copy Writers ambushed her, made her drunk with Longe and Parole and dragged her into their agency, where they abused her for their projects again and again. And if she hasn’t been rewritten, then they are still using her.</p>
+				<p><?php echo $about ?></p>
                 
                 <p><a href="#" class="btn btn-primary btn-outline-primary">Read More</a></p>
               </div>
             </div>
             <div class="col-md-4 mb-5">
               <div class="footer-widget">
-                <h3 class="mb-4">Lunch Service</h3>
-                <p>Booking from 12:00pm &mdash; 1:30pm</p>
                 <h3 class="mb-4">Dinner Service</h3>
-                <p>Everyday: <br> Booking from 6:00pm &mdash; 9:00pm</p>
+				<p><?php echo $contact ?></p>
               </div>
             </div>
 

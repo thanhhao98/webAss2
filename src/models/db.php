@@ -261,15 +261,25 @@ class Infos{
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $content, $status, $lastUpdatedByAdmin);	
 		return $this->db->query($sql);
 	}
-        public function getInfos(){
-            $query = "SELECT * FROM `Infos` WHERE 1"; 
-            $result = $this->db->query($query);
-            return $result;
-        }
-        public function updateInfo($field, $content){
-            $query = "UPDATE `Infos` SET `content`= '$content' WHERE `name` = '$field'";
-            $result = $this->db->query($query);
-            return $result;
-        }
+	public function getAbout(){
+		$query = "SELECT * FROM `Infos` WHERE `status`='1' AND `name`='about'"; 
+		$result = $this->db->query($query);
+		return $result->fetch_assoc()['content'];
+	}
+	public function getContact(){
+		$query = "SELECT * FROM `Infos` WHERE `status`='1' AND `name`='contact'"; 
+		$result = $this->db->query($query);
+		return $result->fetch_assoc()['content'];
+	}
+	public function getInfos(){
+		$query = "SELECT * FROM `Infos` WHERE 1"; 
+		$result = $this->db->query($query);
+		return $result;
+	}
+	public function updateInfo($field, $content){
+		$query = "UPDATE `Infos` SET `content`= '$content' WHERE `name` = '$field'";
+		$result = $this->db->query($query);
+		return $result;
+	}
 }
 ?>
