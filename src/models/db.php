@@ -145,12 +145,51 @@ class ReservationItem {
         }
         public function updateItemById($id, $quantity){
             $query = "UPDATE `ReservationItem` SET `quantity`= '$quantity' WHERE `id` = '$id'";
-            echo $query;
             $result = $this->db->query($query);
             return $result;
         }
 }
 
+class Tables {
+	//const NAME_TABLE = "ReservationItem";
+	private $db;
+	//private $insertFormat = "INSERT INTO %s (reservation, dish, quantity) VALUES ('%d', '%d', '%d')";
+	public function __construct($dbBase){
+		$this->db = $dbBase;
+	}
+	//public function createReservationItem($reservation, $dish, $quantity){
+		//$sql = sprintf($this->insertFormat, self::NAME_TABLE, $reservation, $dish, $quantity);	
+		//return $this->db->query($sql);
+	//}
+        public function getTableById($id){
+            $query = "SELECT * FROM `Tables` WHERE `id` = '$id'";
+            $result = $this->db->query($query);
+            $table = $result->fetch_assoc();
+            return $table;
+        }
+        public function getTableByReservationId($id){
+            $query = "SELECT * FROM `Tables` WHERE (`reservation` = '$id') AND (`isAvailable` = 0)";
+            $result = $this->db->query($query);
+            $table = $result->fetch_assoc();
+            return $table;
+        }
+        public function getAvailableTables($quantity){
+            $query = "SELECT * FROM `Tables` WHERE (`isAvailable` > 0) AND (`quantity` >= '$quantity') ORDER BY `quantity` ASC";
+            return $this->db->query($query);
+        }
+	public function updateTableById($id, $quantity, $isAvailable, $startReser, $lastReser, $reservation, $lastUpdatedByAdmin){
+                $query = "UPDATE `Tables` SET 
+                    `quantity` = CASE WHEN '$quantity' <> '' THEN '$quantity' END,
+                    `isAvailable` = CASE WHEN '$isAvailable' <> '' THEN '$isAvailable' END,
+                    `startReser` = CASE WHEN '$startReser' <> '' THEN '$startReser' END,
+                    `lastReser` = CASE WHEN '$lastReser' <> '' THEN '$lastReser' END,
+                    `reservation` = CASE WHEN '$reservation' <> '' THEN '$reservation' END,
+                    `lastUpdatedByAdmin` = CASE WHEN '$lastUpdatedByAdmin' <> '' THEN '$lastUpdatedByAdmin' END
+                    WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		return $result;
+	}
+}
 class Dishes{
 	const NAME_TABLE = "Dishes";
 	private $db;

@@ -48,7 +48,7 @@
             <img src="assets/img/logo-small.png">
           </div>
         </a>
-        <a href="#" class="simple-text logo-normal">
+        <a href="../.." class="simple-text logo-normal">
           HOME
           <!-- <div class="logo-image-big">
             <img src="assets/img/logo-big.png">

@@ -75,7 +75,7 @@
           </div>
           <!-- <p>CT</p> -->
         </a>
-        <a href="#" class="simple-text logo-normal">
+        <a href="../.." class="simple-text logo-normal">
           HOME
           <!-- <div class="logo-image-big">
             <img src="assets/img/logo-big.png">
@@ -239,6 +239,7 @@
             <div class="row ">
                 <div class="pagination text-right col-md-6">
                   <?php
+                    if ($total_pages > 0){
                       $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
                       echo '<a href="?page=' . $prev_page . '&reservation_status=' . $reservation_status . '&reservation_time_range=' . $reservation_time_range . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
                         foreach(range(1, $total_pages) as $page){
@@ -251,6 +252,7 @@
                         }
                       $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
                       echo '<a href="?page=' . $next_page . '&reservation_status=' . $reservation_status . '&reservation_time_range=' . $reservation_time_range . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
+                    }
                   ?>
                 </div>
                 <div class="col-md-6">

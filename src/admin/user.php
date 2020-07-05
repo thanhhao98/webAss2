@@ -53,7 +53,7 @@
           </div>
           <!-- <p>CT</p> -->
         </a>
-        <a href="#" class="simple-text logo-normal">
+        <a href="../.." class="simple-text logo-normal">
           HOME
           <!-- <div class="logo-image-big">
             <img src="assets/img/logo-big.png">
@@ -78,6 +78,12 @@
             <a href="./manage_dish.php">
               <i class="nc-icon nc-tile-56"></i>
               <p>Manage Dishes</p>
+            </a>
+          </li>
+          <li>
+            <a href="./manage_reservation.php">
+              <i class="nc-icon nc-bullet-list-67"></i>
+              <p>Manage Reservations</p>
             </a>
           </li>
         </ul>
