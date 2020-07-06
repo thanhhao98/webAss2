@@ -225,7 +225,7 @@
                                   if ($ritem['dish'] == $item['dishid']){
                                       //echo "<script>console.log('1: " . $ritem['dish'] . "' );</script>";
                                       $x = 'item_q' . $i;
-                                      $result = $ReservationItem->updateItemById($item['id'], $reservationid, $item['dishid'], $item['price'], (int)$_POST[$x]); 
+                                      $result = $ReservationItem->updateItemById($ritem['id'], $reservationid, $item['dishid'], $item['price'], $_POST[$x]); 
                                       $isNew = false;
                                       array_push($updatedItemIds, $ritem['dish']);
                                       break;
