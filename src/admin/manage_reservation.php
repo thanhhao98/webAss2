@@ -108,6 +108,12 @@
               <p>Manage Reservations</p>
             </a>
           </li>
+          <li>
+            <a href="./manage_table.php">
+              <i class="nc-icon nc-paper"></i>
+              <p>Manage Tables</p>
+            </a>
+          </li>
         </ul>
       </div>
     </div>
@@ -225,7 +231,9 @@
                               echo '<td>'.$reservation['id'].'</td>';
                               //echo '<td>'.$reservation['user'].'</td>';
                               echo '<td>'.$reservation['numPersons'].'</td>';
-                              echo '<td>'.$reservation['createTime'].'</td>';
+                              $time = new DateTime($reservation['createTime']);
+                              $createTime = $time->format('Y-m-d H:i');
+                              echo '<td>'.$createTime.'</td>';
                               echo '<td>'. strtoupper($reservation['status']) .'</td>';
                               echo "<td><a href=\"reservation.php?id=$reservation[id]\" class=\"btn btn-primary btn-round\"><i class=\"nc-icon nc-settings\"></i></a></td>";
                               echo '</tr>';

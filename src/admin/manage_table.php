@@ -6,13 +6,12 @@
     }
     include ("../models/db.php");
     // Filter
-    (isset($_GET["dish_status"])) ? $dish_status = $_GET["dish_status"] : $dish_status=-1;
-    (isset($_GET["dish_price_range"])) ? $dish_price_range = $_GET["dish_price_range"] : $dish_price_range=0;
-    //echo "<script>console.log('1: " . $dish_status . "' );</script>";
-    // Get dishes
+    (isset($_GET["table_status"])) ? $table_status = $_GET["table_status"] : $table_status=-1;
+    (isset($_GET["table_quantity_range"])) ? $table_quantity_range = $_GET["table_quantity_range"] : $table_quantity_range=0;
+    // Get tables
     $db = New DbBase();
-    $Dishes = new Dishes($db);
-    $total = $Dishes->getTotalDishCount($dish_status, $dish_price_range);
+    $Tables = new Tables($db);
+    $total = $Tables->getTotalTableCount($table_status, $table_quantity_range);
     (isset($_GET["num_per_page"])) ? $num_per_page = $_GET["num_per_page"] : $num_per_page=5;
     $total_pages = ceil($total / $num_per_page);
     // Check that the page number is set.
@@ -26,21 +25,20 @@
     $start_idx = ($_GET['page'] - 1) * $num_per_page;
     // SQL Query
     $condition_status = 1;
-    if ($dish_status > -1){
-        $condition_status = "(`status` = $dish_status)";
+    if ($table_status > -1){
+        $condition_status = "(`isAvailable` = $table_status)";
     }
-    $condition_price = 1;
-    if ($dish_price_range > 0){
-        $low = $dish_price_range;
-        $high = $dish_price_range + 2;
-        if ($low == 4){
-            $high += 1;
+    $condition_quantity = 1;
+    if ($table_quantity_range > 0){
+        $low = $table_quantity_range;
+        $high = $table_quantity_range + 2;
+        if ($low == 10){
+            $high = 9999;
         }
-        $condition_price = "(`price` BETWEEN $low AND $high)";
+        $condition_quantity = "(`quantity` BETWEEN $low AND $high)";
     }
-    $query = 'SELECT * FROM `Dishes` WHERE ' . $condition_status . ' AND ' . $condition_price . ' LIMIT ' . $start_idx . ', ' . $num_per_page;
-    //echo "<script>console.log('2: " . $query . "' );</script>";
-    $dishes = $db->query($query);
+    $query = 'SELECT * FROM `Tables` WHERE ' . $condition_status . ' AND ' . $condition_quantity . ' LIMIT ' . $start_idx . ', ' . $num_per_page;
+    $tables = $db->query($query);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,7 +49,7 @@
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    Admin - Manage Dishes
+    Admin - Manage Tables
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -94,7 +92,7 @@
               <p>Manage Users</p>
             </a>
           </li>
-          <li class="active ">
+          <li>
             <a href="./manage_dish.php">
               <i class="nc-icon nc-tile-56"></i>
               <p>Manage Dishes</p>
@@ -106,7 +104,7 @@
               <p>Manage Reservations</p>
             </a>
           </li>
-          <li>
+          <li class="active ">
             <a href="./manage_table.php">
               <i class="nc-icon nc-paper"></i>
               <p>Manage Tables</p>
@@ -127,7 +125,7 @@
                 <span class="navbar-toggler-bar bar3"></span>
               </button>
             </div>
-            <a class="navbar-brand" href="#">Manage Dishes</a>
+            <a class="navbar-brand" href="#">Manage Tables</a>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -186,56 +184,69 @@
             <div class="card">
               <div class="card-header">
                 <div class="card-header row" style="padding: 0px 15px;">
-                    <h4 class="card-title"> Dishes</h4>
+                    <h4 class="card-title"> Tables</h4>
                     <div style="margin-left:auto; margin-right:0;">
-                        <a href="dish.php?create=1">
-                            <input type="submit" class="btn btn-success btn-round" name="add_dish" value="Add"/>
+                        <a href="table.php?create=1">
+                            <input type="submit" class="btn btn-success btn-round" name="add_table" value="Add"/>
                         </a>
                     </div>
                 </div>
-                <input id="dish_search" onkeyup="filterTable('dish_search', 'dish_table')" type="text" value="" class="form-control" placeholder="Search current page...">
+                <input id="table_search" onkeyup="filterTable('table_search', 'table_table')" type="text" value="" class="form-control" placeholder="Search current page...">
               </div>
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table js-sort-table" id="dish_table">
+                  <table class="table js-sort-table" id="table_table">
                     <thead class=" text-primary">
                       <th class="js-sort-number">
                         ID
                       </th>
-                      <th>
-                        Name
-                      </th>
-                      <th>
-                        Description
-                      </th>
                       <th class="js-sort-number">
-                        Price
+                        Capacity
                       </th>
                       <th>
                         Status
                       </th>
-                      <!--<th class="text-right">-->
+                      <th class="js-sort-number">
+                        Current reservation
+                      </th>
+                      <th>
+                        Start time
+                      </th>
+                      <th>
+                        End time
+                      </th>
                       <th>
                         Action
                       </th>
                     </thead>
                     <tbody>
                       <?php
-                          while ($dish = $dishes->fetch_assoc()) {
+                          while ($table = $tables->fetch_assoc()) {
                               echo '<tr>';
-                              echo '<td>'.$dish['id'].'</td>';
-                              echo '<td>'.$dish['name'].'</td>';
-                              echo '<td>'.$dish['descriptions'].'</td>';
-                              echo '<td>'.$dish['price'].'</td>';
+                              echo '<td>'.$table['id'].'</td>';
+                              echo '<td>'.$table['quantity'].'</td>';
                               echo '<td>';
-                              if ($dish['status'] == 1){
+                              if ($table['isAvailable'] > 0){
                                   echo 'Available';
                               }
                               else {
-                                  echo 'Unavailable';
+                                  echo 'Booked';
                               }
                               echo '</td>';
-                              echo "<td><a href=\"dish.php?id=$dish[id]\" class=\"btn btn-primary btn-round\"><i class=\"nc-icon nc-settings\"></i></a></td>";
+                              echo '<td>'.$table['reservation'].'</td>';
+                              if ($table['startReser'] === NULL){
+                                echo '<td></td>';
+                              } else{
+                                $time = new DateTime($table['startReser']);
+                                echo '<td>'.$time->format('Y-m-d H:i').'</td>';
+                              }
+                              if ($table['lastReser'] === NULL){
+                                echo '<td></td>';
+                              } else{
+                                $time = new DateTime($table['lastReser']);
+                                echo '<td>'.$time->format('Y-m-d H:i').'</td>';
+                              }
+                              echo "<td><a href=\"table.php?id=$table[id]\" class=\"btn btn-primary btn-round\"><i class=\"nc-icon nc-settings\"></i></a></td>";
                               echo '</tr>';
                           }
                       ?>
@@ -249,32 +260,33 @@
                   <?php
                     if ($total_pages > 0){
                       $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
-                      echo '<a href="?page=' . $prev_page . '&dish_status=' . $dish_status . '&dish_price_range=' . $dish_price_range . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
+                      echo '<a href="?page=' . $prev_page . '&table_status=' . $table_status . '&table_quantity_range=' . $table_quantity_range . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
                         foreach(range(1, $total_pages) as $page){
                             // Check if we're on the current page in the loop
                             if($page == $_GET['page']){
                                 echo '<a class="active">' . $page . '</a>';
                             }else if($page == 1 || $page == $total_pages || ($page >= $_GET['page'] - 5 && $page <= $_GET['page'] + 5)){
-                                echo '<a href="?page=' . $page . '&dish_status=' . $dish_status . '&dish_price_range=' . $dish_price_range . '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
+                                echo '<a href="?page=' . $page . '&table_status=' . $table_status . '&table_quantity_range=' . $table_quantity_range . '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
                             }
                         }
                       $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
-                      echo '<a href="?page=' . $next_page . '&dish_status=' . $dish_status . '&dish_price_range=' . $dish_price_range . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
+                      echo '<a href="?page=' . $next_page . '&table_status=' . $table_status . '&table_quantity_range=' . $table_quantity_range . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
                     }
                   ?>
                 </div>
                 <div class="col-md-6">
                     <form method="get" class="row">
-                      <select name="dish_price_range" class="form-control" style="width: auto;">
-                        <option value="0"<?=$dish_price_range == 0 ? ' selected="selected"' : '';?>>Price: All</option>
-                        <option value="1"<?=$dish_price_range == 1 ? ' selected="selected"' : '';?>>Price: 1-3</option>
-                        <option value="4"<?=$dish_price_range == 4 ? ' selected="selected"' : '';?>>Price: 4-7</option>
-                        <option value="8"<?=$dish_price_range == 8 ? ' selected="selected"' : '';?>>Price: 8-10</option>
+                      <select name="table_quantity_range" class="form-control" style="width: auto;">
+                        <option value="0"<?=$table_quantity_range == 0 ? ' selected="selected"' : '';?>>Quantity: All</option>
+                        <option value="1"<?=$table_quantity_range == 1 ? ' selected="selected"' : '';?>>Quantity: 1-3</option>
+                        <option value="4"<?=$table_quantity_range == 4 ? ' selected="selected"' : '';?>>Quantity: 4-6</option>
+                        <option value="7"<?=$table_quantity_range == 7 ? ' selected="selected"' : '';?>>Quantity: 7-9</option>
+                        <option value="10"<?=$table_quantity_range == 10 ? ' selected="selected"' : '';?>>Quantity: 10+</option>
                       </select>
-                      <select name="dish_status" class="form-control" style="width: auto;">
-                        <option value="-1"<?=$dish_status == -1 ? ' selected="selected"' : '';?>>Status: All</option>
-                        <option value="1"<?=$dish_status == 1 ? ' selected="selected"' : '';?>>Status: Available</option>
-                        <option value="0"<?=$dish_status == 0 ? ' selected="selected"' : '';?>>Status: Unavailable</option>
+                      <select name="table_status" class="form-control" style="width: auto;">
+                        <option value="-1"<?=$table_status == -1 ? ' selected="selected"' : '';?>>Status: All</option>
+                        <option value="1"<?=$table_status == 1 ? ' selected="selected"' : '';?>>Status: Available</option>
+                        <option value="0"<?=$table_status == 0 ? ' selected="selected"' : '';?>>Status: Booked</option>
                       </select>
                       <select name="num_per_page" class="form-control" style="width: auto;">
                         <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5 entries</option>
@@ -319,11 +331,11 @@
   <script src="assets/js/sort-table.js"></script>
   <script>
       if(window.location.hash == '#updateSuccess'){
-        showNotification('top', 'center', 'success', 'Dish updated successfully')
+        showNotification('top', 'center', 'success', 'Table updated successfully')
       } else if(window.location.hash == '#createSuccess'){
-        showNotification('top', 'center', 'success', 'Dish created successfully')
+        showNotification('top', 'center', 'success', 'Table created successfully')
       } else if(window.location.hash == '#removeSuccess'){
-        showNotification('top', 'center', 'success', 'Dish removed successfully')
+        showNotification('top', 'center', 'success', 'Table removed successfully')
       }
       removeHash();
   </script>

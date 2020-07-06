@@ -13,7 +13,6 @@
     $Tables = new Tables($db);
     $admin_id = $_SESSION['userId'];
     //echo "<script>console.log('Debug Objects: " . isset($_POST['num']) . "' );</script>";
-    //echo "<script>console.log('Debug Objects: " . $_POST['num'] . "' );</script>";
     if (isset($_GET['id'])){
         $reservationid = (int)$_GET['id'];
         $reservation = $Reservations->getReservationById($reservationid);
@@ -42,6 +41,7 @@
         }
         $_SESSION['items'] = $reservationitems;
     }
+    //echo "<script>console.log('Debug Objects: " . ($currentTable === NULL) . "' );</script>";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -105,6 +105,12 @@
             <a href="./manage_reservation.php">
               <i class="nc-icon nc-bullet-list-67"></i>
               <p>Manage Reservations</p>
+            </a>
+          </li>
+          <li>
+            <a href="./manage_table.php">
+              <i class="nc-icon nc-paper"></i>
+              <p>Manage Tables</p>
             </a>
           </li>
         </ul>
@@ -258,10 +264,18 @@
                         $result_table = true;
                         $selected_table_id = $_POST['table_select'];
                         $selected_table = $Tables->getTableById($selected_table_id);
-                        $startTime = new DateTime($_POST['startTime']);
-                        $startTime = $startTime->format('Y-m-d H:i:s');
-                        $endTime = new DateTime($_POST['endTime']);
-                        $endTime = $endTime->format('Y-m-d H:i:s');
+                        if ($_POST['startTime'] == NULL){
+                            $startTime = NULL;
+                        } else{
+                            $startTime = new DateTime($_POST['startTime']);
+                            $startTime = $startTime->format('Y-m-d H:i:s');
+                        }
+                        if ($_POST['endTime'] == NULL){
+                            $endTime = NULL;
+                        } else{
+                            $endTime = new DateTime($_POST['endTime']);
+                            $endTime = $endTime->format('Y-m-d H:i:s');
+                        }
                         $chosenStartTime = $currentTable['startReser'];
                         $chosenEndTime = $currentTable['lastReser'];
                         $timeChanged = false;
@@ -275,18 +289,13 @@
                         } else if ($chosenStartTime > $chosenEndTime){
                             echo "<script type='text/javascript'>alert('Please choose sensible time');</script>";
                         } else if (($selected_table_id != $currentTable['id']) || $timeChanged){
+                            # Update old table
                             $result_2 = $Tables->UpdateTableById($currentTable['id'], $currentTable['quantity'], 1, NULL, NULL, NULL, $admin_id);
-                            $result_1 = $Tables->UpdateTableById($selected_table_id, $selected_table['quantity'], 0, $chosenStartTime, $chosenEndTime, $currentTable['reservation'], $admin_id);
+                            # Update new table
+                            $result_1 = $Tables->UpdateTableById($selected_table_id, $selected_table['quantity'], 0, $chosenStartTime, $chosenEndTime, $reservationid, $admin_id);
                             $result_table = $result_1 && $result_2;
                             //echo "<script>console.log('1: " . $result_table . "' );</script>";
                         }
-                        // Update item quantity
-                        //$i = 0;
-                        //foreach ($reservationitems as $item){
-                            //$x = 'item_q' . $i;
-                            //$ReservationItem->updateItemById($item['id'], (int)$_POST[$x]); 
-                            //$i += 1;
-                        //}
                         # Update reservation
                         $result_reservation = $Reservations->updateReservationById($reservationid, $reservationnum, $reservationstatus, $admin_id);
                         # Redirect
@@ -339,7 +348,11 @@
                         echo '<label>Table</label>';
                         echo '<select class="form-control" name="table_select">';
                         echo '<option value="'; echo $currentTable['id']; echo '">';
-                        echo $currentTable['id']; echo ' - For '; echo $currentTable['quantity']; echo ' person(s) max';
+                        if ($currentTable === NULL){
+                            echo "Please select table";
+                        }else{
+                            echo $currentTable['id']; echo ' - For '; echo $currentTable['quantity']; echo ' person(s) max';
+                        }
                         echo "</option>";
                         while ($table = $availableTables->fetch_assoc()){
                             echo '<option value="'; echo $table['id']; echo '">';
@@ -351,37 +364,28 @@
                   //echo '<div class="row">';
                       echo '<div class="col-md-6 pr-1 form-group">';
                         echo '<label>Start time</label>';
-                        $time = new DateTime($currentTable['startReser']);
-                        echo '<input name="startTime" type="datetime-local" class="form-control" value="'; echo $time->format('Y-m-d\TH:i'); echo '">';
+                        if ($currentTable === NULL){
+                            $time = NULL;
+                        } else if ($currentTable['startReser'] == NULL){
+                            $time = NULL;    
+                        } else{
+                            $time = new DateTime($currentTable['startReser']);
+                            $time = $time->format('Y-m-d\TH:i');
+                        }
+                        echo '<input name="startTime" type="datetime-local" class="form-control" value="'; echo $time; echo '">';
                       echo "</div>";
                       echo '<div class="col-md-6 pl-1 form-group">';
                         echo '<label>End time</label>';
-                        $time = new DateTime($currentTable['lastReser']);
-                        echo '<input name="endTime" type="datetime-local" class="form-control" value="'; echo $time->format('Y-m-d\TH:i'); echo '">';
+                        if ($currentTable === NULL){
+                            $time = NULL;
+                        } else if ($currentTable['lastReser'] == NULL){
+                            $time = NULL;    
+                        }else{
+                            $time = new DateTime($currentTable['lastReser']);
+                            $time = $time->format('Y-m-d\TH:i');
+                        }
+                        echo '<input name="endTime" type="datetime-local" class="form-control" value="'; echo $time; echo '">';
                       echo "</div>";
-                  //echo "</div>";
-                  //$i = 0;
-                  //foreach ($reservationitems as $item){
-                      //echo '<div class="row">';
-                          //echo '<div class="col-md-4 pr-1 form-group">';
-                            //echo '<label>Dish Name</label>';
-                            //echo '<input type="text" disabled="" class="form-control" value="'; echo $item['name']; echo '">';
-                          //echo "</div>";
-                          //echo '<div class="col-md-2 pr-1 form-group">';
-                            //echo '<label>Price</label>';
-                            //echo '<input type="number" disabled="" class="form-control" value="'; echo $item['price']; echo '">';
-                          //echo "</div>";
-                          //echo '<div class="col-md-2 form-group">';
-                            //echo '<label>Quantity</label>';
-                          //echo '<input type="number" min="1" max="100" class="form-control" name="item_q';
-                          //echo $i;
-                          //echo '" value="'; 
-                          //echo $item['quantity']; echo '">';
-                          //echo "</div>";
-                      //echo "</div>";
-                      //$i += 1;
-                  //}
-                  //echo "<input type=\"submit\" class=\"btn btn-success btn-round\" name=\"modifyItem\" value=\"Add/Remove Items\"/>";
                   ?>
                   </div>
                   <div class="row">
@@ -400,55 +404,6 @@
             </div>
           </div>
         </div>
-<!--
-        <div class="row">
-          <div class="col-md-12">
-            <div class="card card-user">
-              <div class="card-header row" style="padding: 0 30px;">
-                  <h5 class="card-title">Reservation Items</h5>
-              </div>
-              <div class="card-body">
-              <?php
-                  # Modify item
-                  if (isset($_POST['modifyItem'])){
-                      $itempage = "reservationitem.php?reservationid=" . $reservationid;
-                      redirect($itempage);
-                  }
-                  # Load items
-                  $i = 0;
-                  foreach ($reservationitems as $item){
-                      echo '<div class="row">';
-                          echo '<div class="col-md-6 pr-1 form-group">';
-                            echo '<label>Dish Name</label>';
-                            echo '<input type="text" disabled="" class="form-control" value="'; echo $item['name']; echo '">';
-                          echo "</div>";
-                          echo '<div class="col-md-3 pr-1 form-group">';
-                            echo '<label>Price</label>';
-                            echo '<input type="number" disabled="" class="form-control" value="'; echo $item['price']; echo '">';
-                          echo "</div>";
-                          echo '<div class="col-md-3 form-group">';
-                            echo '<label>Quantity</label>';
-                          echo '<input type="number" disabled="" min="1" max="100" class="form-control" name="item_q';
-                          echo $i;
-                          echo '" value="'; 
-                          echo $item['quantity']; echo '">';
-                          echo "</div>";
-                      echo "</div>";
-                      $i += 1;
-                  }
-              ?>
-                  <div class="row">
-                    <div class="update ml-auto mr-auto">
-                      <form method="post">
-                        <input type="submit" class="btn btn-success btn-round" name="modifyItem" value="Add/Remove Items">
-                      </form>
-                    </div>
-                  </div>
-              </div>
-            </div>
-          </div>
-        </div>
--->
       </div>
       <footer class="footer footer-black  footer-white ">
         <div class="container-fluid">

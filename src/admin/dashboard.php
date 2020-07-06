@@ -81,6 +81,12 @@
               <p>Manage Reservations</p>
             </a>
           </li>
+          <li>
+            <a href="./manage_table.php">
+              <i class="nc-icon nc-paper"></i>
+              <p>Manage Tables</p>
+            </a>
+          </li>
         </ul>
       </div>
     </div>

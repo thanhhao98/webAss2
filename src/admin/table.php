@@ -7,19 +7,18 @@
     include "../models/db.php";
     include "utils.php";
     $db = new DbBase();
-    $Users = new Users($db);
+    $Tables = new Tables($db);
+    $admin_id = $_SESSION['userId'];
     if (isset($_GET['id'])){
-        $userid = (int)$_GET['id'];
-        $user = $Users->getUserById($userid);
-        $username = $user['name'];
-        $userpwd = $user['password'];
-        $useremail = $user['email'];
-        $userphone = $user['phone'];
-    } 
-    //else if (isset($_GET['create'])){
-        //echo "<script>console.log('Debug Objects: " . isset($_GET['create']) . "' );</script>";
-    //}
-    //echo "<script>console.log('Debug Objects: " . isset($_GET['id']) . "' );</script>";
+        $tableid = (int)$_GET['id'];
+        $table = $Tables->getTableById($tableid);
+        $tableQuantity = $table['quantity'];
+        $tableStatus = $table['isAvailable'];
+        $tableStartReser = $table['startReser'];
+        $tableLastReser = $table['lastReser'];
+        $tableReservation = $table['reservation'];
+    }
+    //echo "<script>console.log('Debug Objects: " . $tableLastReser->format('Y-m-d\TH:i') . "' );</script>";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +29,7 @@
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    Admin - Create New Admin
+    Admin - Tables
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -39,8 +38,7 @@
   <!-- CSS Files -->
   <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
-  <!-- CSS Just for demo purpose, don't include it in your project 
-  <link href="assets/demo/demo.css" rel="stylesheet" />-->
+  <link href="assets/css/mystyle.css" rel="stylesheet" />
 </head>
 
 <body class="">
@@ -68,7 +66,7 @@
               <p>Dashboard</p>
             </a>
           </li>
-          <li class="active ">
+          <li>
             <a href="./manage_user.php">
               <i class="nc-icon nc-single-02"></i>
               <p>Manage Users</p>
@@ -86,7 +84,7 @@
               <p>Manage Reservations</p>
             </a>
           </li>
-          <li>
+          <li class="active ">
             <a href="./manage_table.php">
               <i class="nc-icon nc-paper"></i>
               <p>Manage Tables</p>
@@ -107,7 +105,7 @@
                 <span class="navbar-toggler-bar bar3"></span>
               </button>
             </div>
-            <a class="navbar-brand" href="manage_user.php"><i class="nc-icon nc-minimal-left"></i> Back to Management</a>
+            <a class="navbar-brand" href="manage_table.php"><i class="nc-icon nc-minimal-left"></i> Back to Management</a>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -162,168 +160,139 @@
       <!-- End Navbar -->
       <div class="content">
         <div class="row">
-          <div class="col-md-4" style="<?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
-            <div class="card card-user">
-              <div class="image">
-                <img src="assets/img/damir-bosnjak.jpg" alt="...">
-              </div>
-              <div class="card-body">
-                <div class="author">
-                  <a href="#">
-                    <img class="avatar border-gray" src="assets/img/default-avatar.png" alt="...">
-                    <h5 class="title"><?php echo $username; ?></h5>
-                  </a>
-                </div>
-                <p class="description text-center">
-                  "Anh thanh nien tre <br>
-                  Voi tam hon gia coi"
-                </p>
-              </div>
-              <div class="card-footer">
-                <hr>
-                <div class="button-container">
-                  <div class="row">
-                    <div class="col-lg-3 col-md-6 col-6 ml-auto">
-                      <h5>12<br><small>Orders</small></h5>
-                    </div>
-                    <div class="col-lg-4 col-md-6 col-6 ml-auto mr-auto">
-                      <h5>20<br><small>Dishes</small></h5>
-                    </div>
-                    <div class="col-lg-3 mr-auto">
-                      <h5>24,6$<br><small>Spent</small></h5>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-8">
+          <div class="col-md-12">
             <div class="card card-user">
               <div class="card-header row" style="padding: 0 30px;">
-                    <!--<h5 class="card-title">Edit Profile</h5>-->
-                    <?php
-                        if (isset($_GET['create'])){
-                            echo "<h5 class=\"card-title\">Create New Admin</h5>";
-                        } else{
-                            echo "<h5 class=\"card-title\">Edit Profile</h5>";
-                        } 
-                        if (isset($_POST['remove_user'])){
-                            $result = $Users->deleteUserById($userid);
-                            if ($result){
-                                //echo "<script type='text/javascript'>alert('Success');</script>";
-                                redirect("manage_user.php#removeSuccess");
-                            }
-                        } 
-                    ?>
-                <div style="margin-left:auto; margin-right:0; <?php if (isset($_GET['create'])){ echo 'display: none;'; }?>">
+                <?php
+                    if (isset($_GET['create'])){
+                        echo "<h5 class=\"card-title\">Create New Table</h5>";
+                    } else{
+                        echo "<h5 class=\"card-title\">Edit Table Information</h5>";
+                    } 
+                    if (isset($_POST['remove_table'])){
+                        $result = $Tables->deleteTableById($tableid);
+                        if ($result){
+                            //echo "<script type='text/javascript'>alert('Success');</script>";
+                            redirect("manage_table.php#removeSuccess");
+                        }
+                    } 
+                ?>
+                <div style="margin-left:auto; margin-right:0; 
+                    <?php 
+                    if ((isset($_GET['create'])) || ($tableReservation != NULL)){
+                        echo 'display: none;';
+                    }
+                    ?>">
                     <form method="post">
-                        <input type="submit" class="btn btn-danger btn-round" name="remove_user" value="Remove"/>
+                        <input type="submit" class="btn btn-danger btn-round" name="remove_table" value="Remove"/>
                     </form>
                 </div>
               </div>
               <div class="card-body">
                 <form method="post">
                   <?php 
-                    if (isset($_POST['update_profile'])){
-                        $username = $userphone = $userpwd = "";
-                        $is_same_email = false;
+                    if (isset($_POST['update_table'])){
+                        $tableQuantity = 1;
+                        $tableStartReser = $tableLastReser = "";
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                          $username = test_input($_POST["username"], "username");
-                          $newuseremail = test_input($_POST["email"]);
-                          $userphone = test_input($_POST["phone"]);
-                          $newpwd = test_input($_POST["password"]);
-                          if (!empty($newpwd)){
-                              $userpwd = $newpwd;
-                          }
-                          if ($useremail == $newuseremail){
-                              $is_same_email = true;
-                          }
+                          $tableQuantity = (int)$_POST["quantity"];
                         }
-                        if (strlen($username) < 1){
-                            echo "<script type='text/javascript'>alert('Please enter a username');</script>";
-                        }else if (strlen($userpwd) < 6){
-                            echo "<script type='text/javascript'>alert('Password should be 6 characters or longer');</script>";
-                        }else if (strlen($userphone) < 1){
-                            echo "<script type='text/javascript'>alert('Please enter a phone number');</script>";
-                        } else if (strlen($useremail) < 1){
-                            echo "<script type='text/javascript'>alert('Please enter an email');</script>";
-                        } else if (!filter_var($useremail)){
-                            echo "<script type='text/javascript'>alert('Invalid email format');</script>";
-                        } else if ($Users->emailIsExist($useremail) && !$is_same_email){
-                            echo "<script type='text/javascript'>alert('Email already existed');</script>";
-                        } else {
-                            if (isset($_GET['create'])){
-                                $result = $Users->createUser($username, $useremail, $userphone, $userpwd, 1);
-                                if ($result){
-                                    redirect("manage_user.php#createSuccess");
-                                }
-                            } else{
-                                $result = $Users->updateUserById($userid, $username, $useremail, $userphone, $userpwd);
-                                if ($result){
-                                    redirect("manage_user.php#updateSuccess");
-                                }
+                        # Update table
+                        if ($_POST['startTime'] == NULL){
+                            $tableStartReser = NULL;
+                        } else{
+                            $tableStartReser = new DateTime($_POST['startTime']);
+                            $tableStartReser = $tableStartReser->format('Y-m-d H:i:s');
+                        }
+                        if ($_POST['endTime'] == NULL){
+                            $tableLastReser = NULL;
+                        } else{
+                            $tableLastReser = new DateTime($_POST['endTime']);
+                            $tableLastReser = $tableLastReser->format('Y-m-d H:i:s');
+                        }
+                        if ($tableStartReser > $tableLastReser){
+                            echo "<script type='text/javascript'>alert('Please choose sensible time');</script>";
+                        } else if (isset($_GET['create'])){
+                            $result = $Tables->createTable($tableQuantity, 1, $tableStartReser, $tableLastReser, NULL, $admin_id);
+                            echo "<script>console.log('Log: " .($tableStartReser === NULL) . "' );</script>";
+                            if ($result){
+                                redirect("manage_table.php#createSuccess");
                             }
-                            //if ($result){
-                                //echo "<script type='text/javascript'>alert('Success');</script>";
-                                //redirect("manage_user.php#updateSuccess");
-                            //}
+                        } else{
+                            $result = $Tables->updateTableById($tableid, $tableQuantity, $tableStatus, $tableStartReser, $tableLastReser, $tableReservation, $admin_id);
+                            if ($result){
+                                redirect("manage_table.php#updateSuccess");
+                            }
                         }
-                        //echo "<script>console.log('Update result: " . $result . "' );</script>";
                     }
+                        //echo "<script>console.log('Update result: " . $result . "' );</script>";
                   ?>
                   <div class="row">
                     <div class="col-md-3 pr-1">
                       <div class="form-group">
-                        <label>ID (disabled)</label>
-                        <input name="id" type="text" class="form-control" disabled="" placeholder="ID" value="<?php echo $userid; ?>">
+                        <label>ID</label>
+                        <input name="id" type="text" class="form-control" disabled="" placeholder="ID" value="<?php echo $tableid; ?>">
                       </div>
                     </div>
-                    <div class="col-md-4 px-1">
+                    <div class="col-md-3 px-1">
                       <div class="form-group">
-                        <label>Username</label>
-                        <input name="username" type="text" class="form-control" placeholder="Username" value="<?php echo $username; ?>">
+                        <label>Reservation</label>
+                        <input name="reservation" type="text" class="form-control" disabled="" placeholder="" value="<?php echo $tableReservation; ?>">
                       </div>
                     </div>
-                    <div class="col-md-5 pl-1">
+                    <div class="col-md-2 pl-1">
                       <div class="form-group">
-                        <label>Password</label>
-                        <input name="password" type="password" class="form-control" placeholder="Password" value="">
+                        <label>Status</label>
+                        <input name="status" type="text" disabled="" class="form-control" placeholder=""
+                        value="<?php
+                            if ($tableStatus == 1){
+                                echo 'Available';
+                            } else{
+                                echo 'Booked';
+                            }
+                        ?>">
                       </div>
                     </div>
-                  </div>
-                  <!--
-                  <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-4 pl-1">
                       <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" class="form-control" placeholder="Name" value="69420">
-                      </div>
-                    </div>
-                  </div>
-                  -->
-                  <div class="row">
-                    <div class="col-md-12">
-                      <div class="form-group">
-                        <label>Phone</label>
-                        <input name="phone" type="number" class="form-control" placeholder="000000000" value="<?php echo $userphone; ?>">
+                        <label>Capacity</label>
+                        <input name="quantity" type="number" min="1" max="30" class="form-control" placeholder="1" value="<?php echo $tableQuantity ?>">
                       </div>
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col-md-12">
-                      <div class="form-group">
-                        <label for="exampleInputEmail1">Email address</label>
-                        <input name="email" type="email" class="form-control" placeholder="Email" value="<?php echo $useremail; ?>">
-                      </div>
+                    <div class="col-md-6 form-group">
+                      <label>Start time</label>
+                      <input name="startTime" type="datetime-local" class="form-control" 
+                        value="<?php
+                            if ($tableStartReser === NULL){
+                                    echo '';
+                            } else{
+                                $time = new DateTime($tableStartReser);
+                                echo $time->format('Y-m-d\TH:i');
+                            }
+                        ?>">
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label>End time</label>
+                      <input name="endTime" type="datetime-local" class="form-control"
+                        value="<?php
+                            if ($tableLastReser === NULL){
+                                    echo '';
+                            } else{
+                                $time = new DateTime($tableLastReser);
+                                echo $time->format('Y-m-d\TH:i');
+                            }
+                        ?>">
                     </div>
                   </div>
                   <div class="row">
                     <div class="update ml-auto mr-auto">
                       <?php
                         if (isset($_GET['create'])){
-                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_profile\" value=\"Create\"/>";
+                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_table\" value=\"Create Table\"/>";
                         } else{
-                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_profile\" value=\"Update Profile\"/>";
+                            echo "<input type=\"submit\" class=\"btn btn-primary btn-round\" name=\"update_table\" value=\"Update Table Info\"/>";
                         } 
                       ?>
                     </div>
@@ -371,7 +340,18 @@
   <script src="assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="assets/js/paper-dashboard.min.js?v=2.0.1" type="text/javascript"></script><!-- Paper Dashboard DEMO methods, don't include it in your project! -->
-  <script src="assets/demo/demo.js"></script>
+  <script>
+    $("#btnfile").click(function () {
+        $("#uploadfile").click();
+    });
+    $("#uploadfile").change(function () {
+        var file = $(this).val().replace(/C:\\fakepath\\/ig,'');
+        var current = window.location.href;
+        //console.log(file);
+        //console.log(current);
+        window.location.href = current + "&imgName=" + file;
+    });
+  </script>
 </body>
 
 </html>

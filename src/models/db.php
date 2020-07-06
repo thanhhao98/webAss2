@@ -154,20 +154,26 @@ class ReservationItem {
 }
 
 class Tables {
-	//const NAME_TABLE = "ReservationItem";
+        const NAME_TABLE = "Tables";
 	private $db;
-	//private $insertFormat = "INSERT INTO %s (reservation, dish, quantity) VALUES ('%d', '%d', '%d')";
+        private $insertFormat = "INSERT INTO %s (quantity, isAvailable, startReser, lastReser, reservation, lastUpdatedByAdmin) VALUES ('%d', '%d', '%s', '%s', '%d', '%d')";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	//public function createReservationItem($reservation, $dish, $quantity){
-		//$sql = sprintf($this->insertFormat, self::NAME_TABLE, $reservation, $dish, $quantity);	
-		//return $this->db->query($sql);
-	//}
+        public function createTable($quantity, $isAvailable, $startReser, $lastReser, $reservation, $lastUpdatedByAdmin){
+                $sql = sprintf($this->insertFormat, self::NAME_TABLE, $quantity, $isAvailable, $startReser, $lastReser, $reservation, $lastUpdatedByAdmin);	
+                //$sql = "INSERT INTO `Tables` (quantity, isAvailable, startReser, lastReser, reservation, lastUpdatedByAdmin) VALUES ('$quantity', '$isAvailable', '$startReser', '$lastReser', '$reservation', '$lastUpdatedByAdmin')";
+                //echo $sql;
+                $result = $this->db->query($sql);
+                return $result;
+        }
         public function getTableById($id){
             $query = "SELECT * FROM `Tables` WHERE `id` = '$id'";
             $result = $this->db->query($query);
-            $table = $result->fetch_assoc();
+            $table = NULL;
+            if ($result->num_rows > 0) {
+                $table = $result->fetch_assoc();
+            }
             return $table;
         }
         public function getTableByReservationId($id){
@@ -190,6 +196,32 @@ class Tables {
                     `lastUpdatedByAdmin` = CASE WHEN '$lastUpdatedByAdmin' <> '' THEN '$lastUpdatedByAdmin' END
                     WHERE `id` = '$id'";
 		$result = $this->db->query($query);
+		return $result;
+	}
+	public function getTotalTableCount($status, $quantity_range){
+		$condition_status = 1;
+		if ($status > -1){
+			$condition_status = "(`isAvailable` = '$status')";
+		}
+		$condition_quantity = 1;
+		if ($quantity_range > 0){
+			$low = $quantity_range;
+			$high = $quantity_range + 2;
+			if ($low == 10){
+				$high = 9999;
+			}
+			$condition_quantity = "(`quantity` BETWEEN '$low' AND '$high')";
+		}
+		$query = "SELECT COUNT(*) as `total` FROM `Tables` WHERE " . $condition_status . " AND " .$condition_quantity; 
+		$result = $this->db->query($query);
+		$total = $result->fetch_assoc()["total"];
+		return $total;
+	}
+	public function deleteTableById($id){
+		$query = "DELETE FROM `Tables` WHERE id='$id'";
+                echo $query;
+		$result = $this->db->query($query);
+                echo $result;
 		return $result;
 	}
 }
@@ -318,7 +350,7 @@ class Infos{
 		return $result->fetch_assoc()['content'];
 	}
 	public function getInfos(){
-		$query = "SELECT * FROM `Infos` WHERE 1"; 
+		$query = "SELECT * FROM `Infos` WHERE `status`='1'"; 
 		$result = $this->db->query($query);
 		return $result;
 	}
