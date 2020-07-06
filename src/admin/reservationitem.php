@@ -205,7 +205,9 @@
                         echo '</select>';
                       echo "</div>";
                         ?>
+                      <div class='row' style="margin-left:20px; margin-right:0;">
                         <input type="submit" class="btn btn-success btn-round" name="addItem" value="+"/>
+                      </div>
                     </div>
                 </form>
               </div>
@@ -214,7 +216,9 @@
                   <?php
                       # Modify item
                       if (isset($_POST['modifyItem'])){
+                          # TODO: improve
                           $reservationItems = $ReservationItem->getItemsByReservationId($reservationid);
+                          $updatedItemIds = [];
                           foreach ($_SESSION['items'] as $i=>$item){
                               $isNew = true;
                               foreach ($reservationItems as $ritem){
@@ -223,6 +227,7 @@
                                       $x = 'item_q' . $i;
                                       $result = $ReservationItem->updateItemById($item['id'], $reservationid, $item['dishid'], $item['price'], (int)$_POST[$x]); 
                                       $isNew = false;
+                                      array_push($updatedItemIds, $ritem['dish']);
                                       break;
                                   }
                               }
@@ -232,6 +237,12 @@
                                   $result = $ReservationItem->createReservationItem($reservationid, $item['dishid'], $item['price'], (int)$_POST[$x]); 
                               }
                           }
+                          foreach ($reservationItems as $ritem){
+                              if (in_array($ritem['dish'], $updatedItemIds)){
+                                  continue;
+                              }
+                              $ReservationItem->deleteItemById($ritem['id']);
+                          }
                           $reservationpage = "reservation.php?id=" . $reservationid;
                           redirect($reservationpage);
                       }
@@ -240,7 +251,7 @@
                           # Remove
                           $btn_remove = 'removeItem' . $i;
                           if (isset($_POST[$btn_remove])){
-                              $ReservationItem->deleteItemById($_SESSION['items'][$i]['id']);
+                              //$ReservationItem->deleteItemById($_SESSION['items'][$i]['id']);
                               unset($_SESSION['items'][$i]);
                               continue;
                           }
@@ -262,6 +273,7 @@
                               echo $item['quantity']; echo '">';
                               echo "</div>";
                               echo '<div class="col-md-1 pr-1 form-group">';
+                                //echo '<div style="visibility: hidden">Action</div>';
                                 echo '<input type="submit" class="btn btn-danger btn-round" value="-" name="removeItem';
                                 echo $i;
                                 echo '">';
