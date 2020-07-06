@@ -131,23 +131,26 @@ class Reservations {
 class ReservationItem {
 	const NAME_TABLE = "ReservationItem";
 	private $db;
-	private $insertFormat = "INSERT INTO %s (reservation, dish, quantity) VALUES ('%d', '%d', '%d')";
+	private $insertFormat = "INSERT INTO %s (reservation, dish, price, quantity) VALUES ('%d', '%d', '%d', '%d')";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	public function createReservationItem($reservation, $dish, $quantity){
-		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $reservation, $dish, $quantity);	
+	public function createReservationItem($reservation, $dish, $price, $quantity){
+		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $reservation, $dish, $price, $quantity);	
 		return $this->db->query($sql);
 	}
         public function getItemsByReservationId($id){
             $query = "SELECT * FROM `ReservationItem` WHERE `reservation` = '$id'";
             return $this->db->query($query);
         }
-        public function updateItemById($id, $quantity){
-            $query = "UPDATE `ReservationItem` SET `quantity`= '$quantity' WHERE `id` = '$id'";
-            $result = $this->db->query($query);
-            return $result;
+        public function updateItemById($id, $reservation, $dish, $price, $quantity){
+            $query = "UPDATE `ReservationItem` SET `reservation`= '$reservation', `dish`= '$dish', `price`= '$price', `quantity`= '$quantity' WHERE `id` = '$id'";
+            return $this->db->query($query);
         }
+	public function deleteItemById($id){
+		$query = "DELETE FROM `ReservationItem` WHERE id='$id'";
+		return $this->db->query($query);
+	}
 }
 
 class Tables {
@@ -226,6 +229,10 @@ class Dishes{
 		$dish = $result->fetch_assoc();
 		return $dish;
 	}
+        public function getAllDishes(){
+		$query = "SELECT * FROM `Dishes`";
+		return $this->db->query($query);
+        }
 	public function getAllDishesIsShow($topK=10){
 		$query = "SELECT * FROM `Dishes` WHERE `onShow`='1'";
 		$result = $this->db->query($query);
