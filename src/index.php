@@ -33,80 +33,57 @@ $commennts = $Comments->getCommentVisibles(5);
 	<link rel="stylesheet" href="fonts/ionicons/css/ionicons.min.css">
 	<link rel="stylesheet" href="fonts/fontawesome/css/font-awesome.min.css">
 	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
 
 	<link rel="stylesheet" href="css/style.css">
-	<link rel="stylesheet" href="css/newVer.css">
-	<style>
-		.open-button {
-		  background-color: #555;
-		  color: white;
-		  padding: 16px 20px;
-		  border: none;
-		  cursor: pointer;
-		  opacity: 0.8;
-		  position: fixed;
-		  bottom: 23px;
-		  right: 28px;
-		  width: 280px;
+	<link rel="stylesheet" href="css/form-popup.css">
+	<script type="text/javascript">
+		var slideIndex = 1;
+		$(document).ready(function(){
+			$('.loginShow').click(function(){
+			   $('.hover_bkgr_fricc').show();
+			});
+			$('.popupCloseButton').click(function(){
+				$('.hover_bkgr_fricc').hide();
+			});
+			var x = document.getElementsByClassName("mySlides");
+			showDivs(slideIndex);
+			
+		});
+		function plusDivs(n) {
+			showDivs(slideIndex += n);
 		}
-
-		/* The popup form - hidden by default */
-		.form-popup {
-		  display: none;
-		  position: fixed;
-		  bottom: 0;
-		  right: 0;
-		  border: 2px solid #a1a1a1;
-		  z-index: 9;
+		function showDivs(n) {
+		  var i;
+		  var x = document.getElementsByClassName("mySlides");
+		  if (n > x.length) {slideIndex = 1}
+		  if (n < 1) {slideIndex = x.length}
+		  for (i = 0; i < x.length; i++) {
+			if(i==slideIndex-1){
+				x[i].style.display = "block";
+			} else {
+				x[i].style.display = "none";
+			}
+		  }
 		}
+	</script>
 
-		/* Add styles to the form container */
-		.form-container {
-		  max-width: 300px;
-		  padding: 10px;
-		  background-color: white;
-		}
-
-		/* Full-width input fields */
-		.form-container input[type=text], .form-container input[type=password] {
-		  width: 100%;
-		  padding: 15px;
-		  margin: 5px 0 22px 0;
-		  border: none;
-		  background: #f1f1f1;
-		}
-
-		/* When the inputs get focus, do something */
-		.form-container input[type=text]:focus, .form-container input[type=password]:focus {
-		  background-color: #ddd;
-		  outline: none;
-		}
-
-		/* Set a style for the submit/login button */
-		.form-container .btn {
-		  background-color: #4CAF50;
-		  color: white;
-		  padding: 16px 20px;
-		  border: none;
-		  cursor: pointer;
-		  width: 100%;
-		  margin-bottom:10px;
-		  opacity: 0.8;
-		}
-
-		/* Add a red background color to the cancel button */
-		.form-container .cancel {
-		  background-color: red;
-		}
-
-		/* Add some hover effects to buttons */
-		.form-container .btn:hover, .open-button:hover {
-		  opacity: 1;
-		}
-	</style>
-
-	  </head>
+  </head>
 	  <body class="bg-light">
+		<div class="hover_bkgr_fricc">
+			<span class="helper"></span>
+			<div class="main">
+				<div class="popupCloseButton">&times;</div>
+					<p class="sign" style="font-size: 25px" align="center">Sign in</p>
+					<form class="form1" method="POST" action="auth/l.php">
+						<input class="un " type="email" align="center" name="email" placeholder="Email" required>
+						<input class="pass" type="password" align="center" name="password" placeholder="Password" required>
+						<p style="font-size: 15px; text-align: center">Do not have an account?<br> <a href="auth/register.php">Sign up now</a></p>
+						<button class="submit" type="submit">Login</button>
+					</form>
+			</div>
+		</div>
 
 		<body data-spy="scroll" data-target="#ftco-navbar-spy" data-offset="0">
 
@@ -129,18 +106,12 @@ $commennts = $Comments->getCommentVisibles(5);
 			<div class="navAbsolute">
 				<?php
 				if($role == 'unknown'){
-					echo "<button onclick='openForm()' class='btnLogin'>Login</button>";
-					//echo "<a href='auth/login.php'><button class='btnLogin'>Login</button></a>";
+					echo "<button class='btnLogin loginShow'>Login</button>";
 				}else {
 					echo "<a href='auth/logout.php'><button class='btnLogout'>Logout</button></a>";
 				}
 				?>
 			</div>
-				<?php
-				if($role == 'unknown'){
-					echo loginForm();
-				}
-				?>
 		  </nav>
 
 		  <header class="site-header ">
@@ -484,8 +455,14 @@ $commennts = $Comments->getCommentVisibles(5);
             <div class="row section-heading justify-content-center mb-5">
               <div class="col-md-8 text-center">
                 <h2 class="heading mb-3">Customer Reviews</h2>
-				<p><a href="#">Write your review</a></p>
-				<p style="font-size: 15px">(Login required)</p>
+				<?php
+				if($role == 'unknown'){
+					echo "<p style='color: red; cursor:pointer;'><a class='loginShow'>Login and share your review</a></p>";
+				}else {
+					echo "<p><a href='#'>Write your review</a></p>";
+				
+				}
+				?>
               </div>
             </div>
             <div class="row justify-content-center text-center" data-aos="fade-up">
@@ -539,34 +516,7 @@ $commennts = $Comments->getCommentVisibles(5);
         </footer>
     </div>
 
-		<script>
-			function openForm() {
-			  document.getElementById("myForm").style.display = "block";
-			}
-
-			function closeForm() {
-			  document.getElementById("myForm").style.display = "none";
-			}
-			var slideIndex = 1;
-			showDivs(slideIndex);
-			
-			function plusDivs(n) {
-			  showDivs(slideIndex += n);
-			}
-			
-			function showDivs(n) {
-			  var i;
-			  var x = document.getElementsByClassName("mySlides");
-			  if (n > x.length) {slideIndex = 1}
-			  if (n < 1) {slideIndex = x.length}
-			  for (i = 0; i < x.length; i++) {
-			    x[i].style.display = "none";
-			  }
-			  x[slideIndex-1].style.display = "block";
-			}
-		</script>
-
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r79/three.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r79/three.min.js"></script>
     <script src="js/jquery-3.2.1.min.js"></script>
     <script src="js/jquery-migrate-3.0.1.min.js"></script>
     <script src="js/popper.min.js"></script>
@@ -578,7 +528,6 @@ $commennts = $Comments->getCommentVisibles(5);
     <script src="js/jquery.stellar.min.js"></script>
     <script src="js/jquery.easing.1.3.js"></script>    
     <script src="js/aos.js"></script>
-
     <script src="js/main.js"></script>
   </body>
 </html>

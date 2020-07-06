@@ -1,11 +1,10 @@
 AOS.init({
   duration: 600
 });
-  
 
 (function($) {
 
-	'use strict';
+   'use strict';
 
   $(window).stellar({
     responsive: false,
