@@ -30,7 +30,7 @@
 <head>
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="icon" type="image/png" href="../images/logo.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
     Admin - Manage Users
@@ -261,17 +261,15 @@
                   ?>
                 </div>
                 <div class="col-md-3">
-                    <form method="get">
-                      Show
-                      <select name="num_per_page">
-                        <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5</option>
-                        <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10</option>
-                        <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25</option>
-                        <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50</option>
-                        <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100</option>
+                    <form method="get" class="row">
+                      <select name="num_per_page" class="form-control" style="width: auto;">
+                        <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5 entries</option>
+                        <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10 entries</option>
+                        <option value="25"<?=$num_per_page == 25 ? ' selected="selected"' : '';?>>25 entries</option>
+                        <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50 entries</option>
+                        <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100 entries</option>
                       </select>
-                      entries
-                      <input type="submit" name="submit" value="Filter"/>
+                      <input type="submit" name="submit" style="width: auto;"  value="Filter"/>
                     </form>
                 </div>
             </div>

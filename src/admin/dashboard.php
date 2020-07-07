@@ -5,6 +5,7 @@
         exit;
     }
     include ("../models/db.php");
+    include "utils.php";
     $db = New DbBase();
     $Infos = new Infos($db);
     $infos = $Infos->getInfos();
@@ -23,7 +24,7 @@
 <head>
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="icon" type="image/png" href="../images/logo.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
     Admin Dashboard
@@ -274,7 +275,10 @@
                 <?php
                     if (isset($_POST['update_contact'])){
                         $contact_content = $_POST["current_contact"];
-                        $Infos->updateInfo("contact", $contact_content);
+                        $result = $Infos->updateInfo("contact", $contact_content);
+                        if ($result){
+                            redirect("#updateSuccess");
+                        }
                     }
                 ?>
                 <div class="update ml-auto mr-auto">
@@ -289,8 +293,10 @@
                 <?php
                     if (isset($_POST['update_about'])){
                         $about_content = $_POST["current_about"];
-                        $Infos->updateInfo("about", $about_content);
-
+                        $result = $Infos->updateInfo("about", $about_content);
+                        if ($result){
+                            redirect("#updateSuccess");
+                        }
                     }
                 ?>
                 <div class="update ml-auto mr-auto">
@@ -356,6 +362,14 @@
     });
   </script>
   -->
+  <!-- My script -->
+  <script src="assets/js/myscripts.js"></script>
+  <script>
+      if(window.location.hash == '#updateSuccess'){
+        showNotification('top', 'center', 'success', 'Updated successfully')
+      }
+      removeHash();
+  </script>
 </body>
 
 </html>

@@ -48,7 +48,7 @@
 <head>
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="icon" type="image/png" href="../images/logo.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
     Admin - Manage Dishes
@@ -214,7 +214,9 @@
                       <th>
                         Status
                       </th>
-                      <!--<th class="text-right">-->
+                      <th>
+                        Display
+                      </th>
                       <th>
                         Action
                       </th>
@@ -233,6 +235,14 @@
                               }
                               else {
                                   echo 'Unavailable';
+                              }
+                              echo '</td>';
+                              echo '<td>';
+                              if ($dish['onShow'] == 1){
+                                  echo 'Shown';
+                              }
+                              else {
+                                  echo 'Hidden';
                               }
                               echo '</td>';
                               echo "<td><a href=\"dish.php?id=$dish[id]\" class=\"btn btn-primary btn-round\"><i class=\"nc-icon nc-settings\"></i></a></td>";
