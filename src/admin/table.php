@@ -192,10 +192,9 @@
                 <form method="post">
                   <?php 
                     if (isset($_POST['update_table'])){
-                        $tableQuantity = 1;
-                        $tableStartReser = $tableLastReser = "";
+                        $tableQuantity = $tableStartReser = $tableLastReser = "";
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                          $tableQuantity = (int)$_POST["quantity"];
+                            ($_POST["quantity"] > 0) ? $tableQuantity = (int)$_POST["quantity"] : $tableQuantity = 1;
                         }
                         # Update table
                         if ($_POST['startTime'] == NULL){
@@ -214,9 +213,10 @@
                             echo "<script type='text/javascript'>alert('Please choose sensible time');</script>";
                         } else if (isset($_GET['create'])){
                             $result = $Tables->createTable($tableQuantity, 1, $tableStartReser, $tableLastReser, NULL, $admin_id);
-                            echo "<script>console.log('Log: " .($tableStartReser === NULL) . "' );</script>";
                             if ($result){
                                 redirect("manage_table.php#createSuccess");
+                            } else{
+                                echo "<script>console.log('create failed: " .($tableStartReser === NULL) . "' );</script>";
                             }
                         } else{
                             $result = $Tables->updateTableById($tableid, $tableQuantity, $tableStatus, $tableStartReser, $tableLastReser, $tableReservation, $admin_id);
@@ -225,7 +225,6 @@
                             }
                         }
                     }
-                        //echo "<script>console.log('Update result: " . $result . "' );</script>";
                   ?>
                   <div class="row">
                     <div class="col-md-3 pr-1">

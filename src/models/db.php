@@ -161,9 +161,23 @@ class Tables {
 		$this->db = $dbBase;
 	}
         public function createTable($quantity, $isAvailable, $startReser, $lastReser, $reservation, $lastUpdatedByAdmin){
-                $sql = sprintf($this->insertFormat, self::NAME_TABLE, $quantity, $isAvailable, $startReser, $lastReser, $reservation, $lastUpdatedByAdmin);	
-                //$sql = "INSERT INTO `Tables` (quantity, isAvailable, startReser, lastReser, reservation, lastUpdatedByAdmin) VALUES ('$quantity', '$isAvailable', '$startReser', '$lastReser', '$reservation', '$lastUpdatedByAdmin')";
-                //echo $sql;
+                //$sql = sprintf($this->insertFormat, self::NAME_TABLE, $quantity, $isAvailable, $startReser, $lastReser, $reservation, $lastUpdatedByAdmin);	
+                if ($reservation === NULL) {
+                    $reservation = 'NULL';
+                } else{
+                    $reservation = "'$reservation'";
+                }
+                if ($startReser === NULL) {
+                    $startReser = 'NULL';
+                } else{
+                    $startReser = "'$startReser'";
+                }
+                if ($lastReser === NULL) {
+                    $lastReser = 'NULL';
+                } else{
+                    $lastReser = "'$lastReser'";
+                }
+                $sql = "INSERT INTO `Tables` (quantity, isAvailable, startReser, lastReser, reservation, lastUpdatedByAdmin) VALUES ('$quantity', '$isAvailable', $startReser, $lastReser, $reservation, '$lastUpdatedByAdmin')";
                 $result = $this->db->query($sql);
                 return $result;
         }
