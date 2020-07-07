@@ -110,6 +110,12 @@
               <p>Manage Tables</p>
             </a>
           </li>
+          <li>
+            <a href="./manage_comment.php">
+              <i class="nc-icon nc-chat-33"></i>
+              <p>Manage Comments</p>
+            </a>
+          </li>
         </ul>
       </div>
     </div>

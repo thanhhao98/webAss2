@@ -5,16 +5,10 @@
         exit;
     }
     include ("../models/db.php");
-    // Filter
-    (isset($_GET["reservation_status"])) ? $reservation_status = $_GET["reservation_status"] : $reservation_status="created";
-    (isset($_GET["reservation_time_range"])) ? $reservation_time_range = $_GET["reservation_time_range"] : $reservation_time_range=0;
-    //echo "<script>console.log('1: " . $dish_status . "' );</script>";
-    // Get dishes
     $db = New DbBase();
-    $Reservations = new Reservations($db);
-    $total = $Reservations->getTotalReservationCount($reservation_status, $reservation_time_range);
-    //echo "<script>console.log('2: " . $total . "' );</script>";
+    $Users = new Users($db);
     (isset($_GET["num_per_page"])) ? $num_per_page = $_GET["num_per_page"] : $num_per_page=25;
+    //echo "<script>console.log('Debug Objects: " . $_GET["num_per_page"] . "' );</script>";
     $total_pages = ceil($total / $num_per_page);
     // Check that the page number is set.
     if(!isset($_GET['page'])){
@@ -26,23 +20,8 @@
     // Calculate the starting number
     $start_idx = ($_GET['page'] - 1) * $num_per_page;
     // SQL Query
-    $condition_status = 1;
-    if ($reservation_status != ""){
-        $condition_status = "(`status` = '$reservation_status')";
-    }
-    $condition_time = 1;
-    if ($reservation_time_range > 0){
-        if ($reservation_time_range == 1){
-            $condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 WEEK) AND DATE(CURRENT_DATE()))";
-        } else if ($reservation_time_range == 2){
-            $condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 MONTH) AND DATE(CURRENT_DATE()))";
-        } else if ($reservation_time_range == 3){
-            $condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 YEAR) AND DATE(CURRENT_DATE()))";
-        }
-    }
-    $query = 'SELECT * FROM `Reservations` WHERE ' . $condition_status . ' AND ' . $condition_time . ' ORDER BY `createTime` DESC LIMIT ' . $start_idx . ', ' . $num_per_page;
-    //echo "<script>console.log('2: " . $condition_time . "' );</script>";
-    $reservations = $db->query($query);
+    $query = 'SELECT * FROM `Comments` LIMIT ' . $start_idx . ', ' . $num_per_page;
+    $comments = $db->query($query);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -53,7 +32,7 @@
   <link rel="icon" type="image/png" href="../images/logo.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    Admin - Manage Reservations
+    Admin - Manage Comments 
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -102,7 +81,7 @@
               <p>Manage Dishes</p>
             </a>
           </li>
-          <li class="active ">
+          <li>
             <a href="./manage_reservation.php">
               <i class="nc-icon nc-bullet-list-67"></i>
               <p>Manage Reservations</p>
@@ -114,7 +93,7 @@
               <p>Manage Tables</p>
             </a>
           </li>
-          <li>
+          <li class="active">
             <a href="./manage_comment.php">
               <i class="nc-icon nc-chat-33"></i>
               <p>Manage Comments</p>
@@ -135,7 +114,7 @@
                 <span class="navbar-toggler-bar bar3"></span>
               </button>
             </div>
-            <a class="navbar-brand" href="#">Manage Reservations</a>
+            <a class="navbar-brand" href="#">Manage Comments</a>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -194,54 +173,52 @@
             <div class="card">
               <div class="card-header">
                 <div class="card-header row" style="padding: 0px 15px;">
-                    <h4 class="card-title"> Reservations</h4>
-<!--
+                    <h4 class="card-title"> Comments</h4>
                     <div style="margin-left:auto; margin-right:0;">
-                        <a href="dish.php?create=1">
-                            <input type="submit" class="btn btn-success btn-round" name="add_dish" value="Add"/>
-                        </a>
                     </div>
--->
                 </div>
-                <input id="dish_search" onkeyup="filterTable('dish_search', 'dish_table')" type="text" value="" class="form-control" placeholder="Search current page...">
+                <input id="user_search" onkeyup="filterTable('user_search', 'user_table')" type="text" value="" class="form-control" placeholder="Search...">
               </div>
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table js-sort-table" id="dish_table">
+                  <table class="table js-sort-table" id="user_table">
                     <thead class=" text-primary">
                       <th class="js-sort-number">
                         ID
                       </th>
-<!--
-                      <th>
-                        By User
+                      <th style="text-align: center">
+						User
                       </th>
--->
-                      <th class="js-sort-number">
-                        Table for
+                      <th style="text-align: center">
+						Content 
                       </th>
-                      <th>
-                        Time
+                      <th style="text-align: center">
+						Created at 
                       </th>
-                      <th>
-                        Status
-                      </th>
-                      <th>
-                        Action
+                      <th style="text-align: center">
+                       Status 
                       </th>
                     </thead>
                     <tbody>
                       <?php
-                          while ($reservation = $reservations->fetch_assoc()) {
+                          while ($comment = $comments->fetch_assoc()) {
                               echo '<tr>';
-                              echo '<td>'.$reservation['id'].'</td>';
-                              //echo '<td>'.$reservation['user'].'</td>';
-                              echo '<td>'.$reservation['numPersons'].'</td>';
-                              $time = new DateTime($reservation['createTime']);
-                              $createTime = $time->format('Y-m-d H:i');
-                              echo '<td>'.$createTime.'</td>';
-                              echo '<td>'. strtoupper($reservation['status']) .'</td>';
-                              echo "<td><a href=\"reservation.php?id=$reservation[id]\" class=\"btn btn-primary btn-round\"><i class=\"nc-icon nc-settings\"></i></a></td>";
+                              echo '<td>'.$comment['id'].'</td>';
+                              echo '<td style="text-align: center">';
+							  $userName = $Users->getUserById($comment['user'])['name']; 
+                              echo $userName.'</td>';
+                              echo '<td>'.$comment['content'].'</td>';
+                              echo '<td style="text-align: center">'.$comment['createTime'].'</td>';
+							  $status = '';
+							  $color = '';
+							  if($comment['visibility']){
+								  $status = 'visible';
+								  $color = 'green';
+							  } else {
+								  $status = 'unVisible';
+								  $color = 'red';
+							  }  
+                              echo '<td style="text-align: center; background:'.$color.'">'.$status.'</td>';
                               echo '</tr>';
                           }
                       ?>
@@ -251,40 +228,26 @@
               </div>
             </div>
             <div class="row ">
-                <div class="pagination text-right col-md-6">
+                <div class="pagination text-right col-md-9">
                   <?php
                     if ($total_pages > 0){
                       $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
-                      echo '<a href="?page=' . $prev_page . '&reservation_status=' . $reservation_status . '&reservation_time_range=' . $reservation_time_range . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
+                      echo '<a href="?page=' . $prev_page . '&num_per_page=' . $num_per_page .'">&laquo;</a>';
                         foreach(range(1, $total_pages) as $page){
                             // Check if we're on the current page in the loop
                             if($page == $_GET['page']){
                                 echo '<a class="active">' . $page . '</a>';
                             }else if($page == 1 || $page == $total_pages || ($page >= $_GET['page'] - 5 && $page <= $_GET['page'] + 5)){
-                                echo '<a href="?page=' . $page . '&reservation_status=' . $reservation_status . '&reservation_time_range=' . $reservation_time_range . '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
+                                echo '<a href="?page=' . $page .  '&num_per_page=' . $num_per_page .'">' . $page . '</a>';
                             }
                         }
                       $next_page = $_GET['page'] < $total_pages ? $_GET['page'] + 1 : $total_pages;
-                      echo '<a href="?page=' . $next_page . '&reservation_status=' . $reservation_status . '&reservation_time_range=' . $reservation_time_range . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
+                      echo '<a href="?page=' . $next_page . '&num_per_page=' . $num_per_page .'">&raquo;</a>';
                     }
                   ?>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <form method="get" class="row">
-                      <select name="reservation_time_range" class="form-control" style="width: auto;">
-                        <option value="0"<?=$reservation_time_range == 0 ? ' selected="selected"' : '';?>>Time: All</option>
-                        <option value="1"<?=$reservation_time_range == 1 ? ' selected="selected"' : '';?>>Time: Last week</option>
-                        <option value="2"<?=$reservation_time_range == 2 ? ' selected="selected"' : '';?>>Time: Last month</option>
-                        <option value="3"<?=$reservation_time_range == 3 ? ' selected="selected"' : '';?>>Time: Last year</option>
-                      </select>
-                      <select name="reservation_status" class="form-control" style="width: auto;">
-                        <option value=""<?=$reservation_status == "" ? ' selected="selected"' : '';?>>Status: All</option>
-                        <option value="created"<?=$reservation_status == "created" ? ' selected="selected"' : '';?>>Status: Created</option>
-                        <option value="cancelled"<?=$reservation_status == "cancelled" ? ' selected="selected"' : '';?>>Status: Cancelled</option>
-                        <option value="accepted"<?=$reservation_status == "accepted" ? ' selected="selected"' : '';?>>Status: Accepted</option>
-                        <option value="denied"<?=$reservation_status == "denied" ? ' selected="selected"' : '';?>>Status: Denied</option>
-                        <option value="done"<?=$reservation_status == "done" ? ' selected="selected"' : '';?>>Status: Done</option>
-                      </select>
                       <select name="num_per_page" class="form-control" style="width: auto;">
                         <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5 entries</option>
                         <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10 entries</option>
@@ -292,7 +255,7 @@
                         <option value="50"<?=$num_per_page == 50 ? ' selected="selected"' : '';?>>50 entries</option>
                         <option value="100"<?=$num_per_page == 100 ? ' selected="selected"' : '';?>>100 entries</option>
                       </select>
-                      <input type="submit" name="submit" style="width: auto;" value="Filter"/>
+                      <input type="submit" name="submit" style="width: auto;"  value="Filter"/>
                     </form>
                 </div>
             </div>
@@ -328,11 +291,11 @@
   <script src="assets/js/sort-table.js"></script>
   <script>
       if(window.location.hash == '#updateSuccess'){
-        showNotification('top', 'center', 'success', 'Reservation updated successfully')
+        showNotification('top', 'center', 'success', 'User updated successfully')
       } else if(window.location.hash == '#createSuccess'){
-        showNotification('top', 'center', 'success', 'Reservation created successfully')
+        showNotification('top', 'center', 'success', 'Admin created successfully')
       } else if(window.location.hash == '#removeSuccess'){
-        showNotification('top', 'center', 'success', 'Reservation removed successfully')
+        showNotification('top', 'center', 'success', 'User removed successfully')
       }
       removeHash();
   </script>
