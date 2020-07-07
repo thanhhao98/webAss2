@@ -38,18 +38,24 @@ $commennts = $Comments->getCommentVisibles(5);
 
 	<link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/form-popup.css">
+	<link rel="stylesheet" href="css/comment.css">
 	<script type="text/javascript">
 		var slideIndex = 1;
 		$(document).ready(function(){
-			$('.loginShow').click(function(){
-			   $('.hover_bkgr_fricc').show();
+			$('.commentShow').click(function(){
+			   $('#commentFormId').show();
 			});
-			$('.popupCloseButton').click(function(){
-				$('.hover_bkgr_fricc').hide();
+			$('.closeReviewForm').click(function(){
+				$('#commentFormId').hide();
+			});
+			$('.loginShow').click(function(){
+			   $('#loginFormId').show();
+			});
+			$('.closeLoginForm').click(function(){
+				$('#loginFormId').hide();
 			});
 			var x = document.getElementsByClassName("mySlides");
 			showDivs(slideIndex);
-			
 		});
 		function plusDivs(n) {
 			showDivs(slideIndex += n);
@@ -71,17 +77,28 @@ $commennts = $Comments->getCommentVisibles(5);
 
   </head>
 	  <body class="bg-light">
-		<div class="hover_bkgr_fricc">
+		<div class="hover_bkgr_fricc" id="commentFormId">
 			<span class="helper"></span>
 			<div class="main">
-				<div class="popupCloseButton">&times;</div>
-					<p class="sign" style="font-size: 25px" align="center">Sign in</p>
-					<form class="form1" method="POST" action="auth/l.php">
-						<input class="un " type="email" align="center" name="email" placeholder="Email" required>
-						<input class="pass" type="password" align="center" name="password" placeholder="Password" required>
-						<p style="font-size: 15px; text-align: center">Do not have an account?<br> <a href="auth/register.php">Sign up now</a></p>
-						<button class="submit" type="submit">Login</button>
-					</form>
+				<div class="popupCloseButton closeReviewForm">&times;</div>
+				<p class="sign" style="font-size: 25px" align="center">Wite your review</p>
+				<form class="form1" method="POST" action="user/comment.php">
+					<textarea name='content' rows='1' placeholder='Write here' required></textarea>
+					<button class="submit" type="submit">Submit</button>
+				</form>
+			</div>
+		</div>
+		<div class="hover_bkgr_fricc" id="loginFormId">
+			<span class="helper"></span>
+			<div class="main">
+				<div class="popupCloseButton closeLoginForm">&times;</div>
+				<p class="sign" style="font-size: 25px" align="center">Sign in</p>
+				<form class="form1" method="POST" action="auth/login.php">
+					<input class="un " type="email" align="center" name="email" placeholder="Email" required>
+					<input class="pass" type="password" align="center" name="password" placeholder="Password" required>
+					<p style="font-size: 15px; text-align: center">Do not have an account?<br> <a href="auth/register.php">Sign up now</a></p>
+					<button class="submit" type="submit">Login</button>
+				</form>
 			</div>
 		</div>
 
@@ -459,8 +476,7 @@ $commennts = $Comments->getCommentVisibles(5);
 				if($role == 'unknown'){
 					echo "<p style='color: red; cursor:pointer;'><a class='loginShow'>Login and share your review</a></p>";
 				}else {
-					echo "<p><a href='#'>Write your review</a></p>";
-				
+					echo "<p style='color: red; cursor:pointer;'><a class='commentShow'>Write your review</a></p>";
 				}
 				?>
               </div>

@@ -318,6 +318,11 @@ class Comments{
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $user, $content, $createTime, $visibility, $lastUpdatedByAdmin);	
 		return $this->db->query($sql);
 	}
+	public function createDefaultComment($user, $content){
+		$sql = sprintf("INSERT INTO Comments (user, content, createTime) VALUES ('%d', '%s', '%s')", $user, $content, date("Y-m-d h:i:s",strtotime("now")));
+		return $this->db->query($sql);
+
+	}
 	public function getCommentVisibles($topK=10){
 		$db = new DbBase();
 		$Users = new Users($db); 
