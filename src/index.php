@@ -6,10 +6,22 @@ $db = new DbBase();
 $Dishes = new Dishes($db);
 $Comments = new Comments($db);
 $Infos = new Infos($db);
+$Reservations = new Reservations($db);
 $role = getRole();
 $username = '';
 if ($role != 'unknown'){
 	$username = $_SESSION['userInfo']['username'];
+}
+$reservationNow = '';
+if(isset($_SESSION['reservations'])){
+	$reservation = $_SESSION['reservations'];
+	$reservationNow = $Reservations->getReservationById($reservation['id']);
+	$newStatus = $reservationNow['status'];
+	if($newStatus != 'created' and $newStatus != 'accepted'){
+		$_SESSION['reservations'] = "";
+		unset($_SESSION['reservations']);
+		$reservationNow = '';
+	}
 }
 $about = $Infos->getAbout();
 $contact= $Infos->getContact();
@@ -39,9 +51,16 @@ $commennts = $Comments->getCommentVisibles(5);
 	<link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/form-popup.css">
 	<link rel="stylesheet" href="css/comment.css">
+	<link rel="stylesheet" href="css/reservation.css">
 	<script type="text/javascript">
 		var slideIndex = 1;
 		$(document).ready(function(){
+			$('.viewRervationShow').click(function(){
+			   $('#viewRervationId').show();
+			});
+			$('.closeViewRervation').click(function(){
+				$('#viewRervationId').hide();
+			});
 			$('.commentShow').click(function(){
 			   $('#commentFormId').show();
 			});
@@ -77,6 +96,13 @@ $commennts = $Comments->getCommentVisibles(5);
 
   </head>
 	  <body class="bg-light">
+		<div class="hover_bkgr_fricc" id="viewRervationId">
+			<span class="helper"></span >
+			<div class="main">
+				<div class="popupCloseButton closeViewRervation">&times;</div>
+				<p class="sign" style="font-size: 25px" align="center">My reservation</p>
+			</div>
+		</div>
 		<div class="hover_bkgr_fricc" id="commentFormId">
 			<span class="helper"></span>
 			<div class="main">
@@ -113,8 +139,16 @@ $commennts = $Comments->getCommentVisibles(5);
 				if ($role != 'unknown'){
 					echo "<li><a style='font-size:30px' href='#'>$username</a></li><br><br>";
 				}
+				if ($role == 'admin'){
+					echo "<li><a href='/admin/dashboard.php'>Dashboard</a></li>";
+				}
 				?>
-				<li><a class="sellected" href="#section-home">Home</a></li>
+				<li><a class="" href="#section-home">Home</a></li>
+				<?php
+				if ($reservationNow != ''){
+					echo "<li><a class='viewRervationShow' href='#'>My reservation</a></li>";
+				}
+				?>
 				<li><a href="#section-about">About Us</a></li>
 				<li><a href="#section-menu">Our Menu</a></li>
 				<li><a href="#section-reservation">Reserve A Table</a></li>
@@ -398,9 +432,8 @@ $commennts = $Comments->getCommentVisibles(5);
             </div>
             <div class="row justify-content-center">
               <div class="col-md-10 p-5 form-wrap">
-                <form action="#">
+                <form action="user/reservation.php" method="POST">
                   <div class="row mb-4">
-					
 					<?php
 					if ($role == 'unknown'){
 						echo '
@@ -408,51 +441,44 @@ $commennts = $Comments->getCommentVisibles(5);
 							  <label for="name" class="label">Name</label>
 							  <div class="form-field-icon-wrap">
 								<span class="icon ion-android-person"></span>
-								<input type="text" class="form-control" id="name">
+								<input name="name" type="text" class="form-control" id="name" required>
 							  </div>
 							</div>
 							<div class="form-group col-md-4">
 							  <label for="email" class="label">Email</label>
 							  <div class="form-field-icon-wrap">
 								<span class="icon ion-email"></span>
-								<input type="email" class="form-control" id="email">
+								<input name="email" type="email" class="form-control" id="email" required>
 							  </div>
 							</div>
 							<div class="form-group col-md-4">
 							  <label for="phone" class="label">Phone</label>
 							  <div class="form-field-icon-wrap">
 								<span class="icon ion-android-call"></span>
-								<input type="text" class="form-control" id="phone">
+								<input name="phone" type="tel" pattern="^\+?\d{9,13}" class="form-control" id="phone" required>
 							  </div>
 							</div>';
 					}
 					?>
-
                     <div class="form-group col-md-4">
                       <label for="persons" class="label">Number of Persons</label>
                       <div class="form-field-icon-wrap">
-                        <span class="icon ion-android-arrow-dropdown"></span>
-                        <select name="persons" id="persons" class="form-control">
-                          <option value="">1 person</option>
-                          <option value="">2 persons</option>
-                          <option value="">3 persons</option>
-                          <option value="">4 persons</option>
-                          <option value="">5+ persons</option>
-                        </select>
+						<span class="icon ion-android-people"></span>
+                        <input value="1" name="number" type="number" min="1" max="30" class="form-control" required>
                       </div>
                     </div>
                     <div class="form-group col-md-4">
                       <label for="date" class="label">Date</label>
                       <div class="form-field-icon-wrap">
                         <span class="icon ion-calendar"></span>
-                        <input type="text" class="form-control" id="date">
+                        <input name="date" type="text" class="form-control" id="date" required>
                       </div>
                     </div>
                     <div class="form-group col-md-4">
                       <label for="time" class="label">Time</label>
                       <div class="form-field-icon-wrap">
                         <span class="icon ion-android-time"></span>
-                        <input type="text" class="form-control" id="time">
+                        <input name='time' type="text" class="form-control" id="time" required>
                       </div>
                     </div>
                   </div>

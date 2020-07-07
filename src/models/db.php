@@ -90,42 +90,59 @@ class Reservations {
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $user, $numPersons, $status, $createTime, $lastUpdatedByAdmin);	
 		return $this->db->query($sql);
 	}
-        public function getTotalReservationCount($status, $time_range){
-            $condition_status = 1;
-            if ($status != ""){
-                $condition_status = "(`status` = '$status')";
-            }
-            $condition_time = 1;
-            if ($time_range > 0){
-                if ($time_range == 1){
-                    $condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 WEEK) AND DATE(CURRENT_DATE()))";
-                } else if ($time_range == 2){
-                    $condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 MONTH) AND DATE(CURRENT_DATE()))";
-                } else if ($time_range == 3){
-                    $condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 YEAR) AND DATE(CURRENT_DATE()))";
-                }
-            }
-            $query = "SELECT COUNT(*) as `total` FROM `Reservations` WHERE " . $condition_status . " AND " . $condition_time;
-            $result = $this->db->query($query);
-            $total = $result->fetch_assoc()["total"];
-            return $total;
-        }
-        public function getReservationById($id){
-            $query = "SELECT * FROM `Reservations` WHERE `id` = '$id'";
-            $result = $this->db->query($query);
-            $reservation = $result->fetch_assoc();
-            return $reservation;
-        }
-        public function updateReservationById($id, $numPersons, $status, $admin_id){
-            $query = "UPDATE `Reservations` SET `numPersons`= '$numPersons', `status`= '$status', `lastUpdatedByAdmin`= '$admin_id' WHERE `id` = '$id'";
-            $result = $this->db->query($query);
-            return $result;
-        }
-        public function deleteReservationById($id){
-            $query = "DELETE FROM `Reservations` WHERE id='$id'";
-            $result = $this->db->query($query);
-            return $result;
-        }
+	public function checkUserValidCreateReservation($user){
+		$query = "SELECT * FROM `Reservations` WHERE `user` = '$user' AND `status` = 'created'";
+		$result = $this->db->query($query);
+		return $result->num_rows == 0;
+	}
+	public function getReservationById($id){
+		$query = "SELECT * FROM `Reservations` WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		$reservation = $result->fetch_assoc();
+		return $reservation;
+	}
+	public function createDefaultReservation($numPersons, $d){
+		$sql = sprintf("INSERT INTO Reservations (numPersons,status, createTime) VALUES ('%s', '%s', '%s')", $numPersons, 'created', date("Y-m-d h:i:s",strtotime($d)));
+		$this->db->query($sql);
+		$last_id = mysqli_insert_id($this->db->conn);
+		return $last_id;
+	}
+	public function createDefaultReservationWithUser($user, $numPersons, $d){
+		$sql = sprintf("INSERT INTO Reservations (user, numPersons,status, createTime) VALUES ('%d', '%s', '%s', '%s')", $user, $numPersons, 'created', date("Y-m-d h:i:s",strtotime($d)));
+		$this->db->query($sql);
+		$last_id = mysqli_insert_id($this->db->conn);
+		return $last_id;
+	}
+	public function getTotalReservationCount($status, $time_range){
+		$condition_status = 1;
+		if ($status != ""){
+			$condition_status = "(`status` = '$status')";
+		}
+		$condition_time = 1;
+		if ($time_range > 0){
+			if ($time_range == 1){
+				$condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 WEEK) AND DATE(CURRENT_DATE()))";
+			} else if ($time_range == 2){
+				$condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 MONTH) AND DATE(CURRENT_DATE()))";
+			} else if ($time_range == 3){
+				$condition_time = "(`createTime` BETWEEN DATE(CURRENT_DATE() - INTERVAL 1 YEAR) AND DATE(CURRENT_DATE()))";
+			}
+		}
+		$query = "SELECT COUNT(*) as `total` FROM `Reservations` WHERE " . $condition_status . " AND " . $condition_time;
+		$result = $this->db->query($query);
+		$total = $result->fetch_assoc()["total"];
+		return $total;
+	}
+	public function updateReservationById($id, $numPersons, $status, $admin_id){
+		$query = "UPDATE `Reservations` SET `numPersons`= '$numPersons', `status`= '$status', `lastUpdatedByAdmin`= '$admin_id' WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		return $result;
+	}
+	public function deleteReservationById($id){
+		$query = "DELETE FROM `Reservations` WHERE id='$id'";
+		$result = $this->db->query($query);
+		return $result;
+	}
 }
 
 class ReservationItem {
@@ -321,7 +338,6 @@ class Comments{
 	public function createDefaultComment($user, $content){
 		$sql = sprintf("INSERT INTO Comments (user, content, createTime) VALUES ('%d', '%s', '%s')", $user, $content, date("Y-m-d h:i:s",strtotime("now")));
 		return $this->db->query($sql);
-
 	}
 	public function getCommentVisibles($topK=10){
 		$db = new DbBase();
