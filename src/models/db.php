@@ -242,12 +242,12 @@ class Tables {
 class Dishes{
 	const NAME_TABLE = "Dishes";
 	private $db;
-	private $insertFormat = "INSERT INTO %s (name, price, descriptions, image, status, lastUpdatedByAdmin) VALUES ('%s', '%d', '%s', '%s', '%d', '%d')";
+	private $insertFormat = "INSERT INTO %s (name, price, descriptions, image, status, lastUpdatedByAdmin, onShow) VALUES ('%s', '%d', '%s', '%s', '%d', '%d', '%d')";
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-	public function createDish($name, $price, $descriptions, $status, $image, $lastUpdatedByAdmin){
-	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin);
+	public function createDish($name, $price, $descriptions, $status, $image, $lastUpdatedByAdmin, $display){
+	    $sql = sprintf($this->insertFormat, self::NAME_TABLE, $name, $price, $descriptions, $image, $status, $lastUpdatedByAdmin, $display);
 	    return $this->db->query($sql);
 	}
 	public function getTotalDishCount($status, $price_range){
@@ -295,8 +295,8 @@ class Dishes{
 		}
 		return $dishes;
 	}
-	public function updateDishById($id, $name, $price, $description, $status, $image){
-		$query = "UPDATE `Dishes` SET `name`= '$name', `price`= '$price', `descriptions`= '$description', `status`= '$status', `image`= '$image' WHERE `id` = '$id'";
+	public function updateDishById($id, $name, $price, $description, $status, $image, $admin_id, $display){
+		$query = "UPDATE `Dishes` SET `name`= '$name', `price`= '$price', `descriptions`= '$description', `status`= '$status', `image`= '$image', `lastUpdatedByAdmin`= '$admin_id', `onShow`= '$display' WHERE `id` = '$id'";
 		$result = $this->db->query($query);
 		return $result;
 	}

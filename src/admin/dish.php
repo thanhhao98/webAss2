@@ -16,6 +16,7 @@
         $dishprice = $dish['price'];
         $dishdesc = $dish['descriptions'];
         $dishstatus = $dish['status'];
+        $dishdisplay = $dish['onShow'];
         $dishimage = $dish['image'];
     }
     //echo "<script>console.log('Debug Objects: " . $dishimage . "' );</script>";
@@ -216,7 +217,7 @@
                 <form method="post">
                   <?php 
                     if (isset($_POST['update_dish'])){
-                        $dishname = $dishprice = $dishdesc = $dishstatus = "";
+                        $dishname = $dishprice = $dishdesc = $dishdisplay = $dishstatus = "";
                         if (isset($_GET['imgName'])){
                             $dishimage = "images/" . $_GET['imgName'];
                         }
@@ -228,17 +229,18 @@
                           $dishprice = (int)test_input($_POST["price"]);
                           $dishdesc = test_input($_POST["desc"]);
                           $dishstatus = (int)test_input($_POST["status"]);
+                          $dishdisplay = (int)test_input($_POST["display"]);
                         }
                         if (strlen($dishname) < 1){
                             echo "<script type='text/javascript'>alert('Please enter name');</script>";
                         }else {
                             if (isset($_GET['create'])){
-                                $result = $Dishes->createDish($dishname, $dishprice, $dishdesc, $dishstatus, $dishimage, $admin_id);
+                                $result = $Dishes->createDish($dishname, $dishprice, $dishdesc, $dishstatus, $dishimage, $admin_id, $dishdisplay);
                                 if ($result){
                                     redirect("manage_dish.php#createSuccess");
                                 }
                             } else{
-                                $result = $Dishes->updateDishById($dishid, $dishname, $dishprice, $dishdesc, $dishstatus, $dishimage, $admin_id);
+                                $result = $Dishes->updateDishById($dishid, $dishname, $dishprice, $dishdesc, $dishstatus, $dishimage, $admin_id, $dishdisplay);
                                 if ($result){
                                     redirect("manage_dish.php#updateSuccess");
                                 }
@@ -258,24 +260,35 @@
                         <input name="id" type="text" class="form-control" disabled="" placeholder="ID" value="<?php echo $dishid; ?>">
                       </div>
                     </div>
-                    <div class="col-md-4 px-1">
+                    <div class="col-md-9">
                       <div class="form-group">
                         <label>Name</label>
                         <input name="name" type="text" class="form-control" placeholder="Name" value="<?php echo $dishname; ?>">
                       </div>
                     </div>
-                    <div class="col-md-2 pl-1">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
                       <div class="form-group">
                         <label>Price</label>
                         <input name="price" type="number" min="1" max="10" class="form-control" placeholder="0" value="<?php echo $dishprice; ?>">
                       </div>
                     </div>
-                    <div class="col-md-3 pl-1">
+                    <div class="col-md-4">
                       <div class="form-group">
                         <label>Status</label>
                         <select name="status" class="form-control">
                           <option value="0"<?=$dishstatus == 0 ? ' selected="selected"' : '';?>>Unavailable</option>
                           <option value="1"<?=$dishstatus == 1 ? ' selected="selected"' : '';?>>Available</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Display</label>
+                        <select name="display" class="form-control">
+                          <option value="0"<?=$dishdisplay == 0 ? ' selected="selected"' : '';?>>Hidden</option>
+                          <option value="1"<?=$dishdisplay == 1 ? ' selected="selected"' : '';?>>Shown</option>
                         </select>
                       </div>
                     </div>
