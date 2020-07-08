@@ -7,25 +7,13 @@
     include "../models/db.php";
     include "utils.php";
     $db = new DbBase();
-    $Reservations = new Reservations($db);
+    //$Reservations = new Reservations($db);
     $ReservationItem = new ReservationItem($db);
     $Dishes = new Dishes($db);
     $dishes = $Dishes->getAllDishes();
     $admin_id = $_SESSION['userId'];
     if (isset($_GET['reservationid'])){
         $reservationid = (int)$_GET['reservationid'];
-        //$items = $ReservationItem->getItemsByReservationId($reservationid);
-        //$reservationitems = [];
-        //while ($item = $items->fetch_assoc()) {
-            //$dish = $Dishes->getDishById($item['dish']);
-            //$reservationitem = [
-                //"id" => $item['id'],
-                //"name" => $dish['name'],
-                //"price" => $item['price'],
-                //"quantity" => $item['quantity']
-            //];
-            //array_push($reservationitems, $reservationitem);
-        //}
     }
     //echo "<script>console.log('Debug Objects: " . $_SESSION['items'][0]['name'] . "' );</script>";
 ?>
