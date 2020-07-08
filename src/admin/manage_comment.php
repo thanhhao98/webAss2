@@ -35,21 +35,61 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../images/logo.png">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <title>
-    Admin - Manage Comments 
-  </title>
-  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
-  <!--     Fonts and icons     -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
-  <!-- CSS Files -->
-  <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
-  <link href="assets/css/mystyle.css" rel="stylesheet" />
+	<meta charset="utf-8" />
+	<link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png">
+	<link rel="icon" type="image/png" href="../images/logo.png">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<title>
+	Admin - Manage Comments 
+	</title>
+	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+	<!--     Fonts and icons     -->
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+	<!-- CSS Files -->
+	<link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
+	<link href="assets/css/mystyle.css" rel="stylesheet" />
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		function toggleCommentStatus(id) {
+			var btnStatus = document.getElementById(id.toString())
+			var nextStatus = parseInt(btnStatus.getAttribute('next_status'))
+			request = $.ajax({
+				type: "POST",
+				url: '/admin/toggleCommentStatus.php',
+				data: {
+					'action': 'toggleStatusComment',
+					'idComment': id,
+					'nextStatus': nextStatus,
+				},
+			});
+			request.done(function (response, textStatus, jqXHR){
+				if(response =='successfully'){
+					console.log('ok')
+					var classCss = ''
+					var innerHTMLVal = ''
+					if(nextStatus){
+						nextStatus = 0
+						classCss = 'btn btn-primary btn-round'
+						innerHTMLVal = 'visible'
+					} else {
+						nextStatus = 1
+						classCss = 'btn btn-danger btn-round'
+						innerHTMLVal = 'inVisible'
+					}
+					btnStatus.setAttribute('next_status', nextStatus.toString())
+					btnStatus.className = classCss
+					btnStatus.innerHTML = innerHTMLVal
+					alert("Change status comment successfully");
+				} else {
+					console.log(response)
+					alert("Change status comment fail");
+				}
+			});	
+		 }
+	</script>
+
 </head>
 
 <body class="">
@@ -219,14 +259,17 @@
                               echo '<td style="text-align: center">'.$comment['createTime'].'</td>';
 							  $status = '';
 							  $typeButton= '';
+							  $nextStatus = '';
 							  if($comment['visibility']){
 								  $status = 'visible';
 								  $typeButton = 'btn-primary';
+								  $nextStatus = 0; 
 							  } else {
 								  $status = 'inVisible';
 								  $typeButton = 'btn-danger';
+								  $nextStatus = 1;
 							  }  
-                              echo "<td style=\"text-align: center\"><a  class=\"btn ".$typeButton." btn-round\">".$status."</a></td>";
+                              echo "<td style=\"text-align: center\"><a onclick='toggleCommentStatus(".$comment['id'].")' next_status='".$nextStatus."' id='".$comment['id']."' class=\"btn ".$typeButton." btn-round\">".$status."</a></td>";
                               echo '</tr>';
                           }
                       ?>
