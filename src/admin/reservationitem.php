@@ -7,25 +7,13 @@
     include "../models/db.php";
     include "utils.php";
     $db = new DbBase();
-    $Reservations = new Reservations($db);
+    //$Reservations = new Reservations($db);
     $ReservationItem = new ReservationItem($db);
     $Dishes = new Dishes($db);
     $dishes = $Dishes->getAllDishes();
     $admin_id = $_SESSION['userId'];
     if (isset($_GET['reservationid'])){
         $reservationid = (int)$_GET['reservationid'];
-        //$items = $ReservationItem->getItemsByReservationId($reservationid);
-        //$reservationitems = [];
-        //while ($item = $items->fetch_assoc()) {
-            //$dish = $Dishes->getDishById($item['dish']);
-            //$reservationitem = [
-                //"id" => $item['id'],
-                //"name" => $dish['name'],
-                //"price" => $item['price'],
-                //"quantity" => $item['quantity']
-            //];
-            //array_push($reservationitems, $reservationitem);
-        //}
     }
     //echo "<script>console.log('Debug Objects: " . $_SESSION['items'][0]['name'] . "' );</script>";
 ?>
@@ -54,7 +42,7 @@
   <div class="wrapper ">
     <div class="sidebar" data-color="white" data-active-color="danger">
       <div class="logo">
-        <a href="https://www.creative-tim.com" class="simple-text logo-mini">
+        <a href="../.." class="simple-text logo-mini">
           <div class="logo-image-small">
             <img src="assets/img/logo-small.png">
           </div>
@@ -310,7 +298,7 @@
             <!--
             <nav class="footer-nav">
               <ul>
-                <li><a href="https://www.creative-tim.com" target="_blank">Creative Tim</a></li>
+                <li><a href="../.." target="_blank">Creative Tim</a></li>
                 <li><a href="https://www.creative-tim.com/blog" target="_blank">Blog</a></li>
                 <li><a href="https://www.creative-tim.com/license" target="_blank">Licenses</a></li>
               </ul>

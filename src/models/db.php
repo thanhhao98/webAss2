@@ -139,8 +139,8 @@ class Reservations {
 		$total = $result->fetch_assoc()["total"];
 		return $total;
 	}
-	public function updateReservationById($id, $numPersons, $status, $admin_id){
-		$query = "UPDATE `Reservations` SET `numPersons`= '$numPersons', `status`= '$status', `lastUpdatedByAdmin`= '$admin_id' WHERE `id` = '$id'";
+	public function updateReservationById($id, $numPersons, $status, $admin_id, $userName, $userPhone, $userEmail){
+		$query = "UPDATE `Reservations` SET `numPersons`= '$numPersons', `status`= '$status', `lastUpdatedByAdmin`= '$admin_id', `nameUser`= '$userName', `phoneNumber`= '$userPhone', `email`= '$userEmail' WHERE `id` = '$id'";
 		$result = $this->db->query($query);
 		return $result;
 	}
@@ -416,8 +416,8 @@ class Infos{
 		$result = $this->db->query($query);
 		return $result;
 	}
-	public function updateInfo($field, $content){
-		$query = "UPDATE `Infos` SET `content`= '$content' WHERE `name` = '$field'";
+	public function updateInfo($field, $content, $admin){
+		$query = "UPDATE `Infos` SET `content`= '$content', `lastUpdatedByAdmin`='$admin' WHERE `name` = '$field'";
 		$result = $this->db->query($query);
 		return $result;
 	}

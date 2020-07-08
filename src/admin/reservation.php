@@ -23,6 +23,9 @@
         //(isset($_POST['num'])) ? $reservationnum = $_POST['num'] : $reservationnum = $reservation['numPersons'];
         $reservationnum = $reservation['numPersons'];
         $reservationprice = 0;
+        $reservationUserName = $reservation['nameUser'];
+        $reservationUserPhone = $reservation['phoneNumber'];
+        $reservationUserEmail = $reservation['email'];
         $currentTable = $Tables->getTableByReservationId($reservationid);
         $availableTables = $Tables->getAvailableTables($reservationnum);
         $items = $ReservationItem->getItemsByReservationId($reservationid);
@@ -68,7 +71,7 @@
   <div class="wrapper ">
     <div class="sidebar" data-color="white" data-active-color="danger">
       <div class="logo">
-        <a href="https://www.creative-tim.com" class="simple-text logo-mini">
+        <a href="../.." class="simple-text logo-mini">
           <div class="logo-image-small">
             <img src="assets/img/logo-small.png">
           </div>
@@ -189,7 +192,7 @@
       <!-- End Navbar -->
       <div class="content">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-5">
             <div class="card card-user">
               <div class="card-header row" style="padding: 0 30px;">
                   <h5 class="card-title">Reservation Items</h5>
@@ -234,7 +237,7 @@
               </div>
             </div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-7">
             <div class="card card-user">
               <div class="card-header row" style="padding: 0 30px;">
                 <?php
@@ -261,10 +264,13 @@
                 <form method="post">
                   <?php 
                     if (isset($_POST['update_reservation'])){
-                        $reservationnum = $reservationstatus = "";
+                        $reservationnum = $reservationstatus = $reservationUserName = $reservationUserPhone = $reservationUserEmail = "";
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
                           $reservationnum = (int)test_input($_POST["num"]);
                           $reservationstatus = test_input($_POST["status"]);
+                          $reservationUserName = test_input($_POST["userName"]);
+                          $reservationUserPhone = test_input($_POST["userPhone"]);
+                          $reservationUserEmail = test_input($_POST["userEmail"]);
                         }
                         # Update table
                         $result_table = true;
@@ -300,13 +306,22 @@
                             # Update new table
                             $result_1 = $Tables->UpdateTableById($selected_table_id, $selected_table['quantity'], 0, $chosenStartTime, $chosenEndTime, $reservationid, $admin_id);
                             $result_table = $result_1 && $result_2;
-                            //echo "<script>console.log('1: " . $result_table . "' );</script>";
+                            //echo "<script>console.log('1: " . $result_1 . "' );</script>";
+                            //echo "<script>console.log('2: " . $result_2 . "' );</script>";
+                        } else if (strlen($reservationUserName) < 1){
+                            echo "<script type='text/javascript'>alert('Please enter a username');</script>";
+                        } else if (strlen($reservationUserPhone) < 1){
+                            echo "<script type='text/javascript'>alert('Please enter a phone number');</script>";
+                        } else if (strlen($reservationUserEmail) < 1){
+                            echo "<script type='text/javascript'>alert('Please enter an email');</script>";
                         }
                         # Update reservation
-                        $result_reservation = $Reservations->updateReservationById($reservationid, $reservationnum, $reservationstatus, $admin_id);
+                        $result_reservation = $Reservations->updateReservationById($reservationid, $reservationnum, $reservationstatus, $admin_id, $reservationUserName, $reservationUserPhone, $reservationUserEmail);
                         # Redirect
                         if ($result_table && $result_reservation){
                             redirect("manage_reservation.php#updateSuccess");
+                        } else {
+                            echo "<script type='text/javascript'>alert('Something went wrong...');</script>";
                         }
                     }
                   ?>
@@ -327,6 +342,26 @@
                       <div class="form-group">
                         <label>Time created</label>
                         <input name="time" type="text" class="form-control" disabled="" placeholder="Time" value="<?php echo $reservationtime; ?>">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-3 pr-1">
+                      <div class="form-group">
+                        <label>Name</label>
+                        <input name="userName" type="text" class="form-control" placeholder="Anonymous" value="<?php echo $reservationUserName; ?>">
+                      </div>
+                    </div>
+                    <div class="col-md-4 pr-1">
+                      <div class="form-group">
+                        <label>Phone</label>
+                        <input name="userPhone" type="number" class="form-control" placeholder="Phone" value="<?php echo $reservationUserPhone; ?>">
+                      </div>
+                    </div>
+                    <div class="col-md-5">
+                      <div class="form-group">
+                        <label>Email</label>
+                        <input name="userEmail" type="email" class="form-control" placeholder="Email" value="<?php echo $reservationUserEmail; ?>">
                       </div>
                     </div>
                   </div>
