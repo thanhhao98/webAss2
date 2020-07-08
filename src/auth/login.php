@@ -14,6 +14,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	include("../models/db.php");
 	$db = New DbBase();
 	$Users = new Users($db);
+	$Reservations = new Reservations($db);
 	 
     // Check if email is empty
 	if(empty(trim($_POST["email"]))){
@@ -45,8 +46,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 			} else {
 				$_SESSION["admin"] = false;
 			}
-			$_SESSION["userInfo"] = ["email"=> $result["email"], "username"=> $result["name"], "phone"=> $resullt["phone"]];
+			$_SESSION["userInfo"] = ["email"=> $result["email"], "username"=> $result["name"], "phone"=> $result["phone"]];
 			$_SESSION["userId"] = $result['id'];
+			$reservation = $Reservations->getInitReservationByUserId($result['id']);
+			if($reservation['status'] == 'created' or $reservation['status'] == 'accepted'){
+				$_SESSION['reservations'] = [
+					'name' => $_SESSION["userInfo"]['username'],
+					'email' => $_SESSION["userInfo"]['name'],
+					'phone' => $_SESSION["userInfo"]['phone'],
+					'id' => $reservation['id'] 
+
+				];
+			}
 			header("location: /admin/dashboard.php");
 			exit;
 		} else {
@@ -55,6 +66,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	} else {
 		echo sprintf("<script type='text/javascript'>alert('%s; %s');</script>", $email_err, $password_err);
 	}
-	echo("<script>location.href = 'http://localhost:30001/';</script>");
+	//echo("<script>location.href = 'http://localhost:30001/';</script>");
 }
 ?>
