@@ -8,7 +8,7 @@ function filterTable(search_id, table_id) {
   // Loop through all table rows, and hide those who don't match the search query
   for (i = 0; i < tr.length; i++) {
       tds = tr[i].getElementsByTagName("td");
-      for (var j=1, max=4; j < max; j++) {
+      for (var j=0, max=4; j < max; j++) {
           td = tds[j];
           if (td) {
               txtValue = td.textContent || td.innerText;
