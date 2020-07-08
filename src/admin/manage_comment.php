@@ -204,21 +204,21 @@
                           while ($comment = $comments->fetch_assoc()) {
                               echo '<tr>';
                               echo '<td>'.$comment['id'].'</td>';
-                              echo '<td style="text-align: center">';
+                              echo '<td style="text-align: center"><a href="user.php?id='.$comment["user"].'">';
 							  $userName = $Users->getUserById($comment['user'])['name']; 
-                              echo $userName.'</td>';
+                              echo $userName.'</a></td>';
                               echo '<td>'.$comment['content'].'</td>';
                               echo '<td style="text-align: center">'.$comment['createTime'].'</td>';
 							  $status = '';
-							  $color = '';
+							  $typeButton= '';
 							  if($comment['visibility']){
 								  $status = 'visible';
-								  $color = 'green';
+								  $typeButton = 'btn-primary';
 							  } else {
 								  $status = 'unVisible';
-								  $color = 'red';
+								  $typeButton = 'btn-danger';
 							  }  
-                              echo '<td style="text-align: center; background:'.$color.'">'.$status.'</td>';
+                              echo "<td style=\"text-align: center\"><a  class=\"btn ".$typeButton." btn-round\">".$status."</a></td>";
                               echo '</tr>';
                           }
                       ?>
