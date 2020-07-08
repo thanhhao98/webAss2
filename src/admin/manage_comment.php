@@ -5,11 +5,15 @@
         exit;
     }
     include ("../models/db.php");
+    // Filter
+    (isset($_GET["comment_status"])) ? $comment_status = $_GET["comment_status"] : $comment_status=-1;
     $db = New DbBase();
+    $Comments = new Comments($db);
     $Users = new Users($db);
+    $total = $Comments->getTotalCommentCount($comment_status);
     (isset($_GET["num_per_page"])) ? $num_per_page = $_GET["num_per_page"] : $num_per_page=25;
-    //echo "<script>console.log('Debug Objects: " . $_GET["num_per_page"] . "' );</script>";
     $total_pages = ceil($total / $num_per_page);
+    //echo "<script>console.log('Debug Objects: " . $total_pages . "' );</script>";
     // Check that the page number is set.
     if(!isset($_GET['page'])){
         $_GET['page'] = 1;
@@ -20,7 +24,11 @@
     // Calculate the starting number
     $start_idx = ($_GET['page'] - 1) * $num_per_page;
     // SQL Query
-    $query = 'SELECT * FROM `Comments` LIMIT ' . $start_idx . ', ' . $num_per_page;
+    $condition_status = 1;
+    if ($comment_status > -1){
+        $condition_status = "(`visibility` = $comment_status)";
+    }
+    $query = 'SELECT * FROM `Comments` WHERE ' . $condition_status . ' LIMIT ' . $start_idx . ', ' . $num_per_page;
     $comments = $db->query($query);
 ?>
 <!DOCTYPE html>
@@ -215,7 +223,7 @@
 								  $status = 'visible';
 								  $typeButton = 'btn-primary';
 							  } else {
-								  $status = 'unVisible';
+								  $status = 'inVisible';
 								  $typeButton = 'btn-danger';
 							  }  
                               echo "<td style=\"text-align: center\"><a  class=\"btn ".$typeButton." btn-round\">".$status."</a></td>";
@@ -228,7 +236,7 @@
               </div>
             </div>
             <div class="row ">
-                <div class="pagination text-right col-md-9">
+                <div class="pagination text-right col-md-8">
                   <?php
                     if ($total_pages > 0){
                       $prev_page = $_GET['page'] > 1 ? $_GET['page'] - 1 : 1;
@@ -246,8 +254,13 @@
                     }
                   ?>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <form method="get" class="row">
+                      <select name="comment_status" class="form-control" style="width: auto;">
+                        <option value="-1"<?=$comment_status == -1 ? ' selected="selected"' : '';?>>Status: All</option>
+                        <option value="1"<?=$comment_status == 1 ? ' selected="selected"' : '';?>>Status: Visible</option>
+                        <option value="0"<?=$comment_status == 0 ? ' selected="selected"' : '';?>>Status: Invisible</option>
+                      </select>
                       <select name="num_per_page" class="form-control" style="width: auto;">
                         <option value="5"<?=$num_per_page == 5 ? ' selected="selected"' : '';?>>5 entries</option>
                         <option value="10"<?=$num_per_page == 10 ? ' selected="selected"' : '';?>>10 entries</option>

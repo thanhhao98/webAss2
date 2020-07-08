@@ -11,6 +11,7 @@
     // Get tables
     $db = New DbBase();
     $Tables = new Tables($db);
+    $Reservations = new Reservations($db);
     $total = $Tables->getTotalTableCount($table_status, $table_quantity_range);
     (isset($_GET["num_per_page"])) ? $num_per_page = $_GET["num_per_page"] : $num_per_page=5;
     $total_pages = ceil($total / $num_per_page);
@@ -239,7 +240,8 @@
                                   echo 'Booked';
                               }
                               echo '</td>';
-                              echo '<td>'.$table['reservation'].'</td>';
+                              echo '<td ><a href="reservation.php?id='.$table["reservation"].'">';
+                              echo $table['reservation'].'</a></td>';
                               if ($table['startReser'] === NULL){
                                 echo '<td></td>';
                               } else{
