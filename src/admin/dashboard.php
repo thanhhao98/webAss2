@@ -9,12 +9,16 @@
     $db = New DbBase();
     $Infos = new Infos($db);
     $infos = $Infos->getInfos();
+    $admin_id = $_SESSION['userId'];
     while ($info = $infos->fetch_assoc()) {
+        //echo "<script>console.log(' result: " . $info['content'] . "' );</script>";
         if ($info["name"] == 'contact'){
             $contact_content = $info["content"]; 
+            $contact_content = str_replace('<br>', "\n", $contact_content);
         }
-        else{
+        else if ($info["name"] == 'about'){
             $about_content = $info["content"];
+            $about_content = str_replace('<br>', "\n", $about_content);
         }
     }
 ?>
@@ -281,7 +285,9 @@
                 <?php
                     if (isset($_POST['update_contact'])){
                         $contact_content = $_POST["current_contact"];
-                        $result = $Infos->updateInfo("contact", $contact_content);
+                        //$contact_content = nl2br($contact_content);
+                        $contact_content_html = str_replace("\n", '<br>', $contact_content);
+                        $result = $Infos->updateInfo("contact", $contact_content_html, $admin_id);
                         if ($result){
                             redirect("#updateSuccess");
                         }
@@ -299,7 +305,9 @@
                 <?php
                     if (isset($_POST['update_about'])){
                         $about_content = $_POST["current_about"];
-                        $result = $Infos->updateInfo("about", $about_content);
+                        //$about_content = nl2br($about_content);
+                        $about_content_html = str_replace("\n", '<br>', $about_content);
+                        $result = $Infos->updateInfo("about", $about_content_html, $admin_id);
                         if ($result){
                             redirect("#updateSuccess");
                         }

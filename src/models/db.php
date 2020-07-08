@@ -399,8 +399,8 @@ class Infos{
 		$result = $this->db->query($query);
 		return $result;
 	}
-	public function updateInfo($field, $content){
-		$query = "UPDATE `Infos` SET `content`= '$content' WHERE `name` = '$field'";
+	public function updateInfo($field, $content, $admin){
+		$query = "UPDATE `Infos` SET `content`= '$content', `lastUpdatedByAdmin`='$admin' WHERE `name` = '$field'";
 		$result = $this->db->query($query);
 		return $result;
 	}
