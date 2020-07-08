@@ -68,7 +68,12 @@ class Users {
 		return $this->getUserById($id)['name'];
 	}
 	public function updateUserById($id, $name, $email, $phone, $password){
-		$query = "UPDATE `Users` SET `name`= '$name', `email`= '$email', `phone`= '$phone', `password`= '$password' WHERE `id` = '$id'";
+                if ($password == ''){
+                    $query = "UPDATE `Users` SET `name`= '$name', `email`= '$email', `phone`= '$phone' WHERE `id` = '$id'";
+                } else{
+                    $hash_password = password_hash($password, PASSWORD_DEFAULT);
+                    $query = "UPDATE `Users` SET `name`= '$name', `email`= '$email', `phone`= '$phone', `password`= '$hash_password' WHERE `id` = '$id'";
+                }
 		$result = $this->db->query($query);
 		return $result;
 	}

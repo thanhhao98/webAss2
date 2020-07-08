@@ -7,6 +7,7 @@ $Dishes = new Dishes($db);
 $Comments = new Comments($db);
 $Infos = new Infos($db);
 $Reservations = new Reservations($db);
+$Users = new Users($db);
 $role = getRole();
 $username = '';
 if ($role != 'unknown'){
@@ -23,7 +24,9 @@ if(isset($_SESSION['reservations'])){
 		$reservationNow = '';
 	}
 }
-//echo json_encode($reservationNow);
+//echo json_encode($_SESSION['userInfo']);
+//echo json_encode($_SESSION['userId']);
+
 $about = $Infos->getAbout();
 $contact= $Infos->getContact();
 $dishes = $Dishes->getAllDishesIsShow(5);
@@ -62,6 +65,12 @@ $commennts = $Comments->getCommentVisibles(5);
 			});
 			$('.closeViewRervation').click(function(){
 				$('#viewRervationId').hide();
+			});
+			$('.viewProfile').click(function(){
+			    $('#viewProfileId').show();
+			});
+			$('.closeProfile').click(function(){
+			    $('#viewProfileId').hide();
 			});
 			$('.commentShow').click(function(){
 			   $('#commentFormId').show();
@@ -176,11 +185,121 @@ $commennts = $Comments->getCommentVisibles(5);
                                 </div>
 			</div>
 		</div>
+                <div class="hover_bkgr_fricc" id="viewProfileId">
+			<span class="helper"></span >
+			<div class="main">
+				<div class="popupCloseButton closeProfile">&times;</div>
+				<p class="sign" style="font-size: 25px" align="center">My Profile</p>
+                                <div class="content">
+                                  <div class="row">
+                                    <div class="card card-user">
+                                      <div class="card-body">
+                                        <form method='post'>
+                                          <?php
+                                            if (isset($_POST['update_profile'])){
+                                            //if($_SERVER["REQUEST_METHOD"] == "POST"){
+                                                $name = $password = $phone = $email = "";
+                                                $name_err = $email_err = $phone_err = $password_err = "";
+                                                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                                                    if(empty(trim($_POST["userName"]))){
+                                                        //echo "<script type='text/javascript'>alert('Please enter a name');</script>";
+                                                        $name_err = 'Please enter a name';
+                                                    } else{
+                                                        $name = trim($_POST["userName"]);
+                                                    }
+                                                    if(empty(trim($_POST["userEmail"]))){
+                                                        //echo "<script type='text/javascript'>alert('Please enter an email');</script>";
+                                                        $email_err = 'Please enter an email';
+                                                    } else{
+                                                        if(!filter_var($_POST["userEmail"], FILTER_VALIDATE_EMAIL)){
+                                                            //echo "<script type='text/javascript'>alert('Invalid email format');</script>";
+                                                            $email_err = 'Invalid email format';
+                                                        } else {
+                                                            if(($Users->emailIsExist($_POST["userEmail"])) && ($_POST['userEmail'] != $_SESSION['userInfo']['email'])){
+                                                                //echo "<script type='text/javascript'>alert('Email is used');</script>";
+                                                                $email_err = 'Email is used';
+                                                            } else {
+                                                                $email = trim($_POST["userEmail"]);
+                                                            }
+                                                        }
+                                                    }
+                                                    if(empty(trim($_POST["userPhone"]))){
+                                                        $phone_err = 'Please enter a phone number';
+                                                        //echo "<script type='text/javascript'>alert('Please enter a phone number');</script>";
+                                                    } else{
+                                                        if(preg_match("/^[0-9]/", $_POST["userPhone"])){
+                                                            $phone = trim($_POST["userPhone"]);
+                                                        } else {
+                                                            $phone_err = 'Invalid phone number';
+                                                            //echo "<script type='text/javascript'>alert('Invalid phone number');</script>";
+                                                        }
+                                                    }
+                                                    if((strlen(trim($_POST["userPassword"])) < 6) && (strlen(trim($_POST["userPassword"])) > 0)){
+                                                        //echo "<script type='text/javascript'>alert('Password must have at least 6 characters.');</script>";
+                                                        $email_err = 'Password must have at least 6 characters.';
+                                                    } else{
+                                                        $password = trim($_POST["userPassword"]);
+                                                    }
+                                                }
+                                                if ($name_err == "" and $email_err == "" and $phone_err == "" and $password_err == ""){
+                                                    $result = $Users->updateUserById($_SESSION['userId'], $name, $email, $phone, $password);
+                                                    if ($result){
+                                                        $_SESSION['userInfo']['username'] = $name; 
+                                                        $_SESSION['userInfo']['phone'] = $phone; 
+                                                        $_SESSION['userInfo']['email'] = $email; 
+                                                        echo("<script>location.href = 'http://localhost:30001';</script>");
+                                                    } else{
+                                                        echo "<script type='text/javascript'>alert('Something went wrong...');</script>";
+                                                    }
+                                                }
+                                                //echo "<script>console.log('Debug Objects: " . $password . "' );</script>";
+                                            }
+                                          ?>
+                                          <div class="row">
+                                            <div class="col-md-12">
+                                              <div class="form-group">
+                                                <label>Name</label>
+                                                <input name="userName" type="text" pattern=".{1,}" required title="1 characters minimum" class="form-control" placeholder="Name" value="<?php echo $_SESSION['userInfo']['username']; ?>">
+                                                <span class="help-block"><?php echo $name_err; ?></span>
+                                              </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                              <div class="form-group">
+                                                <label>Phone</label>
+                                                <input name="userPhone" type="tel" class="form-control" pattern="^\+?\d{9,13}" placeholder="Phone" value="<?php echo $_SESSION['userInfo']['phone']; ?>">
+                                              </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                              <div class="form-group">
+                                                <label>Email</label>
+                                                <input name="userEmail" type="email" required class="form-control" placeholder="Email" value="<?php echo $_SESSION['userInfo']['email']; ?>">
+                                              </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                              <div class="form-group">
+                                                <label>Password</label>
+                                                <input name="userPassword" type="password" pattern=".{6,}" required title="6 characters minimum" class="form-control" placeholder="Password" value="">
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="update ml-auto mr-auto">
+                                              <input type="submit" class="btn btn-primary btn-round" name="update_profile" value="Update Profile">
+                                            </div>
+                                          </div>
+                                        </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+			</div>
+		</div>
+ 
 		<div class="hover_bkgr_fricc" id="commentFormId">
 			<span class="helper"></span>
 			<div class="main">
 				<div class="popupCloseButton closeReviewForm">&times;</div>
-				<p class="sign" style="font-size: 25px" align="center">Wite your review</p>
+				<p class="sign" style="font-size: 25px" align="center">Write your review</p>
 				<form class="form1" method="POST" action="user/comment.php">
 					<textarea name='content' rows='1' placeholder='Write here' required></textarea>
 					<button class="submit" type="submit">Submit</button>
@@ -217,6 +336,7 @@ $commennts = $Comments->getCommentVisibles(5);
 				}
 				?>
 				<li><a class="" href="#section-home">Home</a></li>
+                                <li><a class="viewProfile" href="#">My Profile</a></li>
 				<?php
 				if ($reservationNow != ''){
 					echo "<li><a class='viewRervationShow' href='#'>My reservation</a></li>";
