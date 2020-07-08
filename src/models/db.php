@@ -337,6 +337,17 @@ class Comments{
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
+	public function updateStatusById($id, $status){
+		$query = "UPDATE `Comments` SET `visibility`= '$status' WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		return $result;
+	}
+	public function getCommentById($id){
+		$query = "SELECT * FROM `Comments` WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		$comment = $result->fetch_assoc();
+		return $comment;
+	}
 	public function createComment($user, $content, $createTime, $visibility, $lastUpdatedByAdmin){
 		$sql = sprintf($this->insertFormat, self::NAME_TABLE, $user, $content, $createTime, $visibility, $lastUpdatedByAdmin);	
 		return $this->db->query($sql);
