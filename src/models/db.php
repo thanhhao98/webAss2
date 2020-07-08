@@ -367,6 +367,16 @@ class Comments{
 		}
 		return $comments;
 	}
+	public function getTotalCommentCount($status){
+		$condition_status = 1;
+		if ($status > -1){
+			$condition_status = "(`visibility` = '$status')";
+		}
+		$query = "SELECT COUNT(*) as `total` FROM `Comments` WHERE " . $condition_status; 
+		$result = $this->db->query($query);
+		$total = $result->fetch_assoc()["total"];
+		return $total;
+	}
 }
 
 class Infos{
