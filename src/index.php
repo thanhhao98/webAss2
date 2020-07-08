@@ -23,6 +23,7 @@ if(isset($_SESSION['reservations'])){
 		$reservationNow = '';
 	}
 }
+//echo json_encode($reservationNow);
 $about = $Infos->getAbout();
 $contact= $Infos->getContact();
 $dishes = $Dishes->getAllDishesIsShow(5);
@@ -102,6 +103,77 @@ $commennts = $Comments->getCommentVisibles(5);
 			<div class="main">
 				<div class="popupCloseButton closeViewRervation">&times;</div>
 				<p class="sign" style="font-size: 25px" align="center">My reservation</p>
+                                <div class="content">
+                                  <div class="row">
+                                    <div class="card card-user">
+                                      <div class="card-body">
+                                        <form method='post'>
+                                          <?php
+                                            if (isset($_POST['update_reservation'])){
+                                                $reservationUserName = $reservationUserPhone = "";
+                                                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                                                  $reservationUserName = $_POST["userName"];
+                                                  $reservationUserPhone = $_POST["userPhone"];
+                                                }
+                                                //echo "<script>console.log('Debug Objects: " . $reservationUserName . "' );</script>";
+                                                $result = $Reservations->updateReservationUser($reservationNow['id'], $reservationUserName, $reservationUserPhone);
+                                                if ($result){
+                                                    echo("<script>location.href = 'http://localhost:30001';</script>");
+                                                } else{
+                                                    echo "<script type='text/javascript'>alert('Something went wrong...');</script>";
+                                                }
+                                            }
+                                          ?>
+                                          <div class="row">
+                                            <div class="col-md-3 pr-1">
+                                              <div class="form-group">
+                                                <label>Name</label>
+                                                <input name="userName" type="text" class="form-control" placeholder="Anonymous" value="<?php echo $reservationNow['nameUser']; ?>">
+                                              </div>
+                                            </div>
+                                            <div class="col-md-4 pr-1">
+                                              <div class="form-group">
+                                                <label>Phone</label>
+                                                <input name="userPhone" type="tel" class="form-control" pattern="^\+?\d{9,13}" placeholder="Phone" value="<?php echo $reservationNow['phoneNumber']; ?>">
+                                              </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                              <div class="form-group">
+                                                <label>Email</label>
+                                                <input name="userEmail" type="email" disabled="" class="form-control" placeholder="Email" value="<?php echo $reservationNow['email']; ?>">
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-md-2 pr-1">
+                                              <div class="form-group">
+                                                <label>People</label>
+                                                <input name="num" type="number" disabled="" min=1 max=15 class="form-control" placeholder="1" value="<?php echo $reservationNow['numPersons']; ?>">
+                                              </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                              <div class="form-group">
+                                                <label>Status</label>
+                                                <input name="status" type="text" disabled="" class="form-control" placeholder="Created" value="<?php echo strtoupper($reservationNow['status']); ?>">
+                                              </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                              <div class="form-group">
+                                                <label>Time</label>
+                                                <input name="time" type="datetime-local" disabled="" class="form-control" placeholder="Time" value="<?php echo $reservationNow['startReser']; ?>">
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="update ml-auto mr-auto">
+                                              <input type="submit" class="btn btn-primary btn-round" name="update_reservation" value="Update Reservation Info">
+                                            </div>
+                                          </div>
+                                        </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
 			</div>
 		</div>
 		<div class="hover_bkgr_fricc" id="commentFormId">

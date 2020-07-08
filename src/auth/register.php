@@ -55,9 +55,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 			$confirm_password_err = "Password did not match.";
 		}
 	}
-	if ($_POST["isAdmin"] == "admin"){
-		$isAdmin = true;
-	}
 	if ($username_err == "" and $email_err =="" and $phone_err == "" and $password_err == "" and $confirm_password_err == ""){
 		$Users->createUser($username, $email, $phone, $password, $isAdmin);
 		$_SESSION["loggedin"] = true;
@@ -119,8 +116,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="password" name="confirm_password" class="form-control" value="<?php echo $confirm_password; ?>">
                 <span class="help-block"><?php echo $confirm_password_err; ?></span>
             </div>
-			<label for="vehicle1">I am admin</label>
-			<input type="checkbox" id="isAdmin" name="isAdmin" value="admin">
             <div class="form-group">
                 <input type="submit" class="btn btn-primary" value="Submit">
             </div>

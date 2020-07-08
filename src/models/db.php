@@ -144,6 +144,11 @@ class Reservations {
 		$result = $this->db->query($query);
 		return $result;
 	}
+	public function updateReservationUser($id, $userName, $userPhone){
+		$query = "UPDATE `Reservations` SET `nameUser`= '$userName', `phoneNumber`= '$userPhone' WHERE `id` = '$id'";
+		$result = $this->db->query($query);
+		return $result;
+	}
 	public function deleteReservationById($id){
 		$query = "DELETE FROM `Reservations` WHERE id='$id'";
 		$result = $this->db->query($query);
