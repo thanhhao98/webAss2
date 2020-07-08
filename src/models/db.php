@@ -95,20 +95,26 @@ class Reservations {
 		$result = $this->db->query($query);
 		return $result->num_rows == 0;
 	}
+	public function getInitReservationByUserId($user){
+		$query = "SELECT * FROM `Reservations` WHERE `user` = '$user' AND `status` IN ('created', 'accepted')";
+		$result = $this->db->query($query);
+		$reservation = $result->fetch_assoc();
+		return $reservation;
+	}
 	public function getReservationById($id){
 		$query = "SELECT * FROM `Reservations` WHERE `id` = '$id'";
 		$result = $this->db->query($query);
 		$reservation = $result->fetch_assoc();
 		return $reservation;
 	}
-	public function createDefaultReservation($numPersons, $d){
-		$sql = sprintf("INSERT INTO Reservations (numPersons,status, createTime) VALUES ('%s', '%s', '%s')", $numPersons, 'created', date("Y-m-d h:i:s",strtotime($d)));
+	public function createDefaultReservation($numPersons, $name, $email, $phone, $d){
+		$sql = sprintf("INSERT INTO Reservations (numPersons, status, createTime, nameUser, phoneNumber, email) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')", $numPersons, 'created', date("Y-m-d h:i:s",strtotime($d)), $name, $phone, $email);
 		$this->db->query($sql);
 		$last_id = mysqli_insert_id($this->db->conn);
 		return $last_id;
 	}
-	public function createDefaultReservationWithUser($user, $numPersons, $d){
-		$sql = sprintf("INSERT INTO Reservations (user, numPersons,status, createTime) VALUES ('%d', '%s', '%s', '%s')", $user, $numPersons, 'created', date("Y-m-d h:i:s",strtotime($d)));
+	public function createDefaultReservationWithUser($user, $numPersons, $name, $email, $phone, $d){
+		$sql = sprintf("INSERT INTO Reservations (user, numPersons, status, createTime, nameUser, phoneNumber, email) VALUES ('%d', '%s', '%s', '%s', '%s', '%s', '%s')", $user, $numPersons, 'created', date("Y-m-d h:i:s",strtotime($d)), $name, $phone, $email);
 		$this->db->query($sql);
 		$last_id = mysqli_insert_id($this->db->conn);
 		return $last_id;
