@@ -175,7 +175,6 @@ class Reservations {
                     $lastReser = "'$lastReser'";
                 }
 		$query = "UPDATE `Reservations` SET `numPersons`= '$numPersons', `status`= '$status', `lastUpdatedByAdmin`= '$admin_id', `nameUser`= '$userName', `phoneNumber`= '$userPhone', `email`= '$userEmail', `startReser`= $startReser, `lastReser`= $lastReser WHERE `id` = '$id'";
-                echo $query;
 		$result = $this->db->query($query);
 		return $result;
 	}
@@ -284,9 +283,7 @@ class Tables {
 	}
 	public function deleteTableById($id){
 		$query = "DELETE FROM `Tables` WHERE id='$id'";
-                echo $query;
 		$result = $this->db->query($query);
-                echo $result;
 		return $result;
 	}
 }
