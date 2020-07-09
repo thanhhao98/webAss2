@@ -144,8 +144,19 @@ class Reservations {
 		$total = $result->fetch_assoc()["total"];
 		return $total;
 	}
-	public function updateReservationById($id, $numPersons, $status, $admin_id, $userName, $userPhone, $userEmail){
-		$query = "UPDATE `Reservations` SET `numPersons`= '$numPersons', `status`= '$status', `lastUpdatedByAdmin`= '$admin_id', `nameUser`= '$userName', `phoneNumber`= '$userPhone', `email`= '$userEmail' WHERE `id` = '$id'";
+	public function updateReservationById($id, $numPersons, $status, $admin_id, $userName, $userPhone, $userEmail, $startReser, $lastReser){
+                if ($startReser === NULL) {
+                    $startReser = 'NULL';
+                } else{
+                    $startReser = "'$startReser'";
+                }
+                if ($lastReser === NULL) {
+                    $lastReser = 'NULL';
+                } else{
+                    $lastReser = "'$lastReser'";
+                }
+		$query = "UPDATE `Reservations` SET `numPersons`= '$numPersons', `status`= '$status', `lastUpdatedByAdmin`= '$admin_id', `nameUser`= '$userName', `phoneNumber`= '$userPhone', `email`= '$userEmail', `startReser`= $startReser, `lastReser`= $lastReser WHERE `id` = '$id'";
+                echo $query;
 		$result = $this->db->query($query);
 		return $result;
 	}
@@ -193,24 +204,14 @@ class Tables {
 	public function __construct($dbBase){
 		$this->db = $dbBase;
 	}
-        public function createTable($quantity, $isAvailable, $startReser, $lastReser, $reservation, $lastUpdatedByAdmin){
+        public function createTable($quantity, $isAvailable, $reservation, $lastUpdatedByAdmin){
                 //$sql = sprintf($this->insertFormat, self::NAME_TABLE, $quantity, $isAvailable, $startReser, $lastReser, $reservation, $lastUpdatedByAdmin);	
                 if ($reservation === NULL) {
                     $reservation = 'NULL';
                 } else{
                     $reservation = "'$reservation'";
                 }
-                if ($startReser === NULL) {
-                    $startReser = 'NULL';
-                } else{
-                    $startReser = "'$startReser'";
-                }
-                if ($lastReser === NULL) {
-                    $lastReser = 'NULL';
-                } else{
-                    $lastReser = "'$lastReser'";
-                }
-                $sql = "INSERT INTO `Tables` (quantity, isAvailable, startReser, lastReser, reservation, lastUpdatedByAdmin) VALUES ('$quantity', '$isAvailable', $startReser, $lastReser, $reservation, '$lastUpdatedByAdmin')";
+                $sql = "INSERT INTO `Tables` (quantity, isAvailable, reservation, lastUpdatedByAdmin) VALUES ('$quantity', '$isAvailable', $reservation, '$lastUpdatedByAdmin')";
                 $result = $this->db->query($sql);
                 return $result;
         }
@@ -233,12 +234,10 @@ class Tables {
             $query = "SELECT * FROM `Tables` WHERE (`isAvailable` > 0) AND (`quantity` >= '$quantity') ORDER BY `quantity` ASC";
             return $this->db->query($query);
         }
-	public function updateTableById($id, $quantity, $isAvailable, $startReser, $lastReser, $reservation, $lastUpdatedByAdmin){
+	public function updateTableById($id, $quantity, $isAvailable, $reservation, $lastUpdatedByAdmin){
                 $query = "UPDATE `Tables` SET 
                     `quantity` = CASE WHEN '$quantity' <> '' THEN '$quantity' END,
                     `isAvailable` = CASE WHEN '$isAvailable' <> '' THEN '$isAvailable' END,
-                    `startReser` = CASE WHEN '$startReser' <> '' THEN '$startReser' END,
-                    `lastReser` = CASE WHEN '$lastReser' <> '' THEN '$lastReser' END,
                     `reservation` = CASE WHEN '$reservation' <> '' THEN '$reservation' END,
                     `lastUpdatedByAdmin` = CASE WHEN '$lastUpdatedByAdmin' <> '' THEN '$lastUpdatedByAdmin' END
                     WHERE `id` = '$id'";

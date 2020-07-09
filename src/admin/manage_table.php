@@ -216,12 +216,14 @@
                       <th class="js-sort-number">
                         Current reservation
                       </th>
+<!--
                       <th>
                         Start time
                       </th>
                       <th>
                         End time
                       </th>
+-->
                       <th>
                         Action
                       </th>
@@ -242,18 +244,18 @@
                               echo '</td>';
                               echo '<td ><a href="reservation.php?id='.$table["reservation"].'">';
                               echo $table['reservation'].'</a></td>';
-                              if ($table['startReser'] === NULL){
-                                echo '<td></td>';
-                              } else{
-                                $time = new DateTime($table['startReser']);
-                                echo '<td>'.$time->format('Y-m-d H:i').'</td>';
-                              }
-                              if ($table['lastReser'] === NULL){
-                                echo '<td></td>';
-                              } else{
-                                $time = new DateTime($table['lastReser']);
-                                echo '<td>'.$time->format('Y-m-d H:i').'</td>';
-                              }
+                              //if ($table['startReser'] === NULL){
+                                //echo '<td></td>';
+                              //} else{
+                                //$time = new DateTime($table['startReser']);
+                                //echo '<td>'.$time->format('Y-m-d H:i').'</td>';
+                              //}
+                              //if ($table['lastReser'] === NULL){
+                                //echo '<td></td>';
+                              //} else{
+                                //$time = new DateTime($table['lastReser']);
+                                //echo '<td>'.$time->format('Y-m-d H:i').'</td>';
+                              //}
                               echo "<td><a href=\"table.php?id=$table[id]\" class=\"btn btn-primary btn-round\"><i class=\"nc-icon nc-settings\"></i></a></td>";
                               echo '</tr>';
                           }

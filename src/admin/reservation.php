@@ -26,6 +26,8 @@
         $reservationUserName = $reservation['nameUser'];
         $reservationUserPhone = $reservation['phoneNumber'];
         $reservationUserEmail = $reservation['email'];
+        $reservationStartReser = $reservation['startReser'];
+        $reservationLastReser = $reservation['lastReser'];
         $currentTable = $Tables->getTableByReservationId($reservationid);
         $availableTables = $Tables->getAvailableTables($reservationnum);
         $items = $ReservationItem->getItemsByReservationId($reservationid);
@@ -283,31 +285,30 @@
                             $startTime = $startTime->format('Y-m-d H:i:s');
                         }
                         if ($_POST['endTime'] == NULL){
+                            //echo "<script type='text/javascript'>alert('here');</script>";
                             $endTime = NULL;
                         } else{
                             $endTime = new DateTime($_POST['endTime']);
                             $endTime = $endTime->format('Y-m-d H:i:s');
                         }
-                        $chosenStartTime = $currentTable['startReser'];
-                        $chosenEndTime = $currentTable['lastReser'];
+                        //$chosenStartTime = $currentTable['startReser'];
+                        //$chosenEndTime = $currentTable['lastReser'];
+                        $chosenStartTime = $reservationStartReser;
+                        $chosenEndTime = $reservationLastReser;
                         $timeChanged = false;
                         if (($chosenStartTime != $startTime) || ($chosenEndTime != $endTime)){
+                            //echo "<script type='text/javascript'>alert('there');</script>";
                             $timeChanged = true;
                             $chosenStartTime = $startTime;
                             $chosenEndTime = $endTime;
                         }
                         if ($reservationnum > $selected_table['quantity']){
-                            echo "<script type='text/javascript'>alert('Please choose larger table');</script>";
-                        } else if ($chosenStartTime > $chosenEndTime){
+                            $result_table = false;
+                            //echo "<script type='text/javascript'>alert('Please choose larger table');</script>";
+                        } else if (($chosenStartTime > $chosenEndTime) && ($chosenEndTime != NULL)){
                             echo "<script type='text/javascript'>alert('Please choose sensible time');</script>";
-                        } else if (($selected_table_id != $currentTable['id']) || $timeChanged){
-                            # Update old table
-                            $result_2 = $Tables->UpdateTableById($currentTable['id'], $currentTable['quantity'], 1, NULL, NULL, NULL, $admin_id);
-                            # Update new table
-                            $result_1 = $Tables->UpdateTableById($selected_table_id, $selected_table['quantity'], 0, $chosenStartTime, $chosenEndTime, $reservationid, $admin_id);
-                            $result_table = $result_1 && $result_2;
-                            //echo "<script>console.log('1: " . $result_1 . "' );</script>";
-                            //echo "<script>console.log('2: " . $result_2 . "' );</script>";
+                            //echo "<script>console.log('1: " . $chosenStartTime . "' );</script>";
+                            //echo "<script>console.log('2: " . $chosenEndTime . "' );</script>";
                         } else if (strlen($reservationUserName) < 1){
                             echo "<script type='text/javascript'>alert('Please enter a username');</script>";
                         } else if (strlen($reservationUserPhone) < 1){
@@ -315,12 +316,26 @@
                         } else if (strlen($reservationUserEmail) < 1){
                             echo "<script type='text/javascript'>alert('Please enter an email');</script>";
                         }
+                        if ($result_table){
+                            if (($selected_table_id != $currentTable['id']) || $timeChanged){
+                                # Update old table
+                                $result_2 = $Tables->UpdateTableById($currentTable['id'], $currentTable['quantity'], 1, NULL, $admin_id);
+                                # Update new table
+                                $result_1 = $Tables->UpdateTableById($selected_table_id, $selected_table['quantity'], 0, $reservationid, $admin_id);
+                                $result_table = $result_1 && $result_2;
+                            }
+                        } else {
+                            // Not updated
+                            $result_table = true;
+                        }
                         # Update reservation
-                        $result_reservation = $Reservations->updateReservationById($reservationid, $reservationnum, $reservationstatus, $admin_id, $reservationUserName, $reservationUserPhone, $reservationUserEmail);
+                        $result_reservation = $Reservations->updateReservationById($reservationid, $reservationnum, $reservationstatus, $admin_id, $reservationUserName, $reservationUserPhone, $reservationUserEmail, $chosenStartTime, $chosenEndTime);
                         # Redirect
                         if ($result_table && $result_reservation){
                             redirect("manage_reservation.php#updateSuccess");
                         } else {
+                            //echo "<script>console.log('1: " . $result_table . "' );</script>";
+                            //echo "<script>console.log('2: " . $result_reservation . "' );</script>";
                             echo "<script type='text/javascript'>alert('Something went wrong...');</script>";
                         }
                     }
@@ -405,24 +420,23 @@
                   //echo '<div class="row">';
                       echo '<div class="col-md-6 pr-1 form-group">';
                         echo '<label>Start time</label>';
-                        if ($currentTable === NULL){
-                            $time = NULL;
-                        } else if ($currentTable['startReser'] == NULL){
+                        //if ($currentTable === NULL){
+                            //$time = NULL;
+                        //} else if ($currentTable['startReser'] == NULL){
+                        if ($reservationStartReser == NULL){
                             $time = NULL;    
                         } else{
-                            $time = new DateTime($currentTable['startReser']);
+                            $time = new DateTime($reservationStartReser);
                             $time = $time->format('Y-m-d\TH:i');
                         }
                         echo '<input name="startTime" type="datetime-local" class="form-control" value="'; echo $time; echo '">';
                       echo "</div>";
                       echo '<div class="col-md-6 pl-1 form-group">';
                         echo '<label>End time</label>';
-                        if ($currentTable === NULL){
-                            $time = NULL;
-                        } else if ($currentTable['lastReser'] == NULL){
+                        if ($reservationLastReser == NULL){
                             $time = NULL;    
-                        }else{
-                            $time = new DateTime($currentTable['lastReser']);
+                        } else{
+                            $time = new DateTime($reservationLastReser);
                             $time = $time->format('Y-m-d\TH:i');
                         }
                         echo '<input name="endTime" type="datetime-local" class="form-control" value="'; echo $time; echo '">';

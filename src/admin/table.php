@@ -218,7 +218,7 @@
                         if ($tableStartReser > $tableLastReser){
                             echo "<script type='text/javascript'>alert('Please choose sensible time');</script>";
                         } else if (isset($_GET['create'])){
-                            $result = $Tables->createTable($tableQuantity, 1, $tableStartReser, $tableLastReser, NULL, $admin_id);
+                            $result = $Tables->createTable($tableQuantity, 1, NULL, $admin_id);
                             if ($result){
                                 redirect("manage_table.php#createSuccess");
                             } else{
@@ -250,7 +250,10 @@
                         <label>Status</label>
                         <input name="status" type="text" disabled="" class="form-control" placeholder=""
                         value="<?php
-                            if ($tableStatus == 1){
+                            if ($tableStatus == NULL){
+                                echo '';
+                            }
+                            else if ($tableStatus == 1){
                                 echo 'Available';
                             } else{
                                 echo 'Booked';
@@ -265,7 +268,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="row">
+                  <div class="row" style="display:none;">
                     <div class="col-md-6 form-group">
                       <label>Start time</label>
                       <input name="startTime" type="datetime-local" class="form-control" 
