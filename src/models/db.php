@@ -113,13 +113,32 @@ class Reservations {
 		return $reservation;
 	}
 	public function createDefaultReservation($numPersons, $name, $email, $phone, $d){
-		$sql = sprintf("INSERT INTO Reservations (numPersons, status, createTime, nameUser, phoneNumber, email) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')", $numPersons, 'created', date("Y-m-d h:i:s",strtotime($d)), $name, $phone, $email);
+		$startTime = date("Y-m-d h:i:s",strtotime($d));
+		$sql = sprintf("INSERT INTO Reservations (numPersons, status, createTime, nameUser, phoneNumber, email, startReser, lastReser) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
+			$numPersons, 
+			'created', 
+			date("Y-m-d h:i:s",strtotime('now')), 
+			$name, 
+			$phone, 
+			$email, 
+			$startTime 
+		);
 		$this->db->query($sql);
 		$last_id = mysqli_insert_id($this->db->conn);
 		return $last_id;
 	}
 	public function createDefaultReservationWithUser($user, $numPersons, $name, $email, $phone, $d){
-		$sql = sprintf("INSERT INTO Reservations (user, numPersons, status, createTime, nameUser, phoneNumber, email) VALUES ('%d', '%s', '%s', '%s', '%s', '%s', '%s')", $user, $numPersons, 'created', date("Y-m-d h:i:s",strtotime($d)), $name, $phone, $email);
+		$startTime = date("Y-m-d h:i:s",strtotime($d));  
+		$sql = sprintf("INSERT INTO Reservations (user, numPersons, status, createTime, nameUser, phoneNumber, email, startReser) VALUES ('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )",
+			$user, 
+			$numPersons, 
+			'created', 
+			date("Y-m-d h:i:s",strtotime('now')), 
+			$name, 
+			$phone, 
+			$email, 
+			$startTime 
+		);
 		$this->db->query($sql);
 		$last_id = mysqli_insert_id($this->db->conn);
 		return $last_id;

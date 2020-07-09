@@ -24,9 +24,6 @@ if(isset($_SESSION['reservations'])){
 		$reservationNow = '';
 	}
 }
-//echo json_encode($_SESSION['userInfo']);
-//echo json_encode($_SESSION['userId']);
-
 $about = $Infos->getAbout();
 $contact= $Infos->getContact();
 $dishes = $Dishes->getAllDishesIsShow(5);
@@ -169,7 +166,7 @@ $commennts = $Comments->getCommentVisibles(5);
                                             <div class="col-md-6">
                                               <div class="form-group">
                                                 <label>Time</label>
-                                                <input name="time" type="datetime-local" disabled="" class="form-control" placeholder="Time" value="<?php echo $reservationNow['startReser']; ?>">
+                                                <input name="time" type="datetime-local" disabled="" class="form-control" placeholder="Time" value="<?php $date=date_create($reservationNow['startReser']); echo date_format($date ,'Y-m-d\TH:i'); ?>">
                                               </div>
                                             </div>
                                           </div>
